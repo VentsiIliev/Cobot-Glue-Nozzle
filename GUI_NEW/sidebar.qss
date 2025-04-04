@@ -1,0 +1,30 @@
+/* sidebar.qss */
+QFrame {
+    background-color: #6272a4;
+    color: #F8F8F2;
+    border: none;
+}
+
+QLabel {
+    font-size: 18px;
+    font-weight: bold;
+    color: #FF79C6;
+}
+
+QPushButton {
+    font-size: 14px;
+    padding: 10px;
+    background-color: #566388;
+    color: #F8F8F2;
+    border-radius: 5px;
+}
+
+QPushButton:hover {
+    background-color: #BD93F9; /* Set the desired hover background color */
+    color: #FFFFFF; /* Set the desired hover text color */
+}
+
+QPushButton:checked {
+    background-color: #155c9c; /* Set the desired selected background color */
+    color: #FFFFFF; /* Set the desired selected text color */
+}

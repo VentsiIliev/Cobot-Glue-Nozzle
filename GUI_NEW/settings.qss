@@ -1,0 +1,80 @@
+/* settings.qss
+
+ */
+
+QFrame {
+    background-color: #495474;
+    color: #F8F8F2;
+    border: none;
+    border-radius: 6px;
+}
+
+QPushButton {
+    font-size: 14px;
+    padding: 10px;
+    background-color: #566388;
+    color: #F8F8F2;
+    border-radius: 5px;
+}
+
+QPushButton:hover {
+    background-color: #BD93F9; /* Set the desired hover background color */
+    color: #FFFFFF; /* Set the desired hover text color */
+}
+
+QPushButton:pressed {
+    background-color: #BD93F9; /* Set the desired pressed background color */
+    color: #FFFFFF; /* Set the desired pressed text color */
+}
+
+
+
+/* Ensure the entire pane has rounded edges */
+QTabWidget::pane {
+    border: 1px solid #566388; /* Border color matching the tab */
+    background: #6272a4; /* Background color for the tab pane */
+    border-radius: 6px; /* Apply rounding to the entire pane */
+}
+
+/* Default tab style */
+QTabBar::tab {
+    background: #566388;  Background color for the tab
+    color: #F8F8F2;
+    padding: 10px;
+    border: 1px solid #6272a4; /* Border matching the tab color */
+    border-radius: 6px; /* Rounded edges */
+    margin: 2px; /* Prevent clipping */
+}
+
+/* Selected tab styling */
+QTabBar::tab:selected {
+    background: #155c9c; /* Color for selected tab */
+    color: #F8F8F2; /* Text color on selected tab */
+    border-radius: 6px; /* Keep rounded edges for selected tab */
+    border: 1px solid #6272a4; /* Border matching the selected tab */
+}
+
+/* Hover effect */
+QTabBar::tab:hover {
+    background: #BD93F9; /* Hover background color */
+    color: #F8F8F2; /* Text color on hover */
+    border-radius: 6px; /* Maintain rounded edges when hovering */
+    border: 1px solid #6272a4; /* Border color on hover */
+    background-clip: padding-box; /* Ensure background color doesn't extend beyond border */
+}
+
+QLineEdit {
+    background-color: white;
+    color: black;
+    border: 1px solid #ccc;
+    padding: 5px;
+}
+
+QLineEdit:focus {
+    border: 1px solid #0078d7;
+}
+
+
+QCheckBox {
+    color: black;
+}
