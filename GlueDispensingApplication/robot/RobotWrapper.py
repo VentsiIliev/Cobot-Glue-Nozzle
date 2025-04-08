@@ -3,6 +3,7 @@ import platform
 if platform.system() == "Windows":
     from fairino.windows import Robot
 elif platform.system() == "Linux":
+    print("Linux detected")
     from fairino.linux import Robot
 else:
     raise Exception("Unsupported OS")
@@ -17,7 +18,7 @@ class TestRobotWrapper():
         return position
 
     def moveL(self,position, tool, user, vel, acc, blendR):
-        print("MoveL: ", position, tool, user, vel, acc, blendR,overSpeedStrategy = 3)
+        print("MoveL: ", position, tool, user, vel, acc, blendR)
         return position
 
     def getCurrentPosition(self):
@@ -53,7 +54,7 @@ class Direction(Enum):
     def __str__(self):
         return self.name
 
-class RobotWrapper():
+class RobotWrapper:
     def __init__(self, ip):
         self.ip = ip
         self.robot = Robot.RPC(self.ip)

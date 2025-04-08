@@ -27,7 +27,7 @@ class PlSlider(QWidget):
         # Create a label to describe the setting
         self.label = QLabel(label_text, self)
         self.label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-        self.label.setStyleSheet("font-size: 16px; font-weight: bold; color: black;")
+        # self.label.setStyleSheet("font-size: 16px; font-weight: bold; color: black;")
 
         # Create the slider
         self.slider = QSlider(orientation)
@@ -46,7 +46,7 @@ class PlSlider(QWidget):
         self.value_label = QLabel(str(self.slider.value()), self)
         self.value_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.value_label.setFixedWidth(50)  # Adjust fixed width for better fit
-        self.value_label.setStyleSheet("font-size: 16px; font-weight: bold; color: black;")
+        # self.value_label.setStyleSheet("font-size: 16px; font-weight: bold; color: black;")
 
     def _set_slider_styles(self):
         """Set the style for the slider"""
@@ -57,6 +57,7 @@ class PlSlider(QWidget):
                 background: #000000;
                 margin: 2px 0;
             }
+  
             QSlider::handle:horizontal {
                 background: #905BA9;
                 border: 1px solid #905BA9;
@@ -65,18 +66,8 @@ class PlSlider(QWidget):
                 margin: -5px 0;
                 border-radius: 12px;
             }
-            QSlider::sub-page:horizontal {
-                background: #000000;
-                border: 1px solid #000000;
-                height: 4px;
-                border-radius: 2px;
-            }
-            QSlider::add-page:horizontal {
-                background: #000000;
-                border: 1px solid #000000;
-                height: 4px;
-                border-radius: 2px;
-        """)
+                      """)
+
 
     def _create_button(self, icon_path):
         """Helper function to create buttons with icons"""
@@ -134,11 +125,15 @@ class PlSlider(QWidget):
         self.value_label.setText(str(self.slider.value()))
 
     def resizeEvent(self, event):
-        """Adjust button sizes on resize event"""
+        """Adjust button sizes and slider width on resize event"""
         new_width = self.width()
-        icon_size = int(new_width * 0.125)  # 5% of new window width
+        icon_size = int(new_width * 0.125)  # 12.5% of new window width
+        slider_width = int(new_width * 0.5)  # 75% of new window width
+
         self.minus_button.setIconSize(QSize(icon_size, icon_size))
         self.plus_button.setIconSize(QSize(icon_size, icon_size))
+        self.slider.setFixedWidth(slider_width)
+
         super().resizeEvent(event)
 
 

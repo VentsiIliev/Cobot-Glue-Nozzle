@@ -12,7 +12,8 @@ class GlueNozzleService:
         if platform.system() == "Windows":
             self.port = "COM5"  # Adjust as necessary
         else:  # Assuming Linux
-            self.port = "/dev/ttyUSB0"  # Adjust as necessary
+            self.port = "/dev/ttyUSB1"  # Adjust as necessary
+            # self.port = "ttyUSB1"  # Adjust as necessary
 
         print("Slave:", self.slave)
         print("Port:", self.port)

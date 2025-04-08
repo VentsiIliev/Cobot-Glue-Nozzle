@@ -6,8 +6,7 @@ import os
 
 from GUI_NEW.customWidgets.CustomLineEdit import CustomLineEdit
 from GUI_NEW.Enums import Widget
-from API import Constants
-from API.Request import Request
+
 
 SETTINGS_STYLESHEET = os.path.join("GUI_NEW", "settings.qss")
 TITLE = "Create Workpiece"

@@ -39,11 +39,7 @@ class VisionSystem:
         # read the config.json file
         data = self.__loadSettings(configFilePath)
 
-        # Determine OS and set the correct serial port
-        if platform.system() == "Windows":
-            self.cameraId = data[SettingsKey.INDEX.value]  # Adjust as necessary
-        else:  # Assuming Linux
-            self.cameraId = 1  # Adjust as necessary
+
 
 
         self.frameWidth = data[SettingsKey.WIDTH.value]
@@ -53,7 +49,7 @@ class VisionSystem:
         self.epsilon = data[SettingsKey.EPSILON.value]
         self.contourDetection = data[SettingsKey.CONTOUR_DETECTION.value]
         self.drawContours = data[SettingsKey.DRAW_CONTOURS.value]
-
+        self.cameraId = data[SettingsKey.INDEX.value]
 
 
         self.camera = Camera(self.cameraId, self.frameWidth, self.frameHeight)

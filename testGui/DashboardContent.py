@@ -1,10 +1,9 @@
-# add imports
-from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QStackedWidget, QApplication, QSpacerItem, QSizePolicy
-from PyQt6.QtCore import QSize
-from GalleryContent import GalleryContent
-from Sidebar import Sidebar
+from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QStackedWidget, QApplication
+
 from ButtonConfig import ButtonConfig
 from CameraFeed import CameraFeed
+from Sidebar import Sidebar
 
 
 class MainContent(QWidget):
@@ -42,8 +41,6 @@ class MainContent(QWidget):
         # Add the stacked widget to the main layout
         self.main_layout.addWidget(self.stacked_widget, 1)
 
-
-
         self.cameraFeed = CameraFeed()
         self.cameraFeedLayout = QVBoxLayout()
         self.content_layout.addWidget(self.cameraFeed)
@@ -60,11 +57,23 @@ class MainContent(QWidget):
                                              "Settings",
                                              self.onStopButton)
 
-        self.button_4_config = ButtonConfig("resources/pl_ui_icons/LOGIN_BUTTON_SQUARE.png",
-                                            "resources/pl_ui_icons/PRESSED_RUN_BUTTON.png",
-                                            "Login",
-                                            self.onButton4Clicked)
-        self.buttons = [self.startButtoncConfig, self.stopButtonConfig, self.button_4_config]
+        self.createWorkpieceConfig = ButtonConfig("resources/pl_ui_icons/CREATE_WORKPIECE_BUTTON_SQUARE.png",
+                                                  "resources/pl_ui_icons/PRESSED_CREATE_WORKPIECE_BUTTON_SQUARE.png",
+                                                  "createWorkpiece",
+                                                  self.onButton4Clicked)
+
+        self.calibrationButtonConfig = ButtonConfig("resources/pl_ui_icons/CALIBRATION_BUTTON_SQUARE.png",
+                                                    "resources/pl_ui_icons/PRESSED_CALIBRATION_BUTTON_SQUARE.png",
+                                                    "calibrate",
+                                                    self.onButton4Clicked)
+
+        self.manualMoveButtonConfig = ButtonConfig("resources/pl_ui_icons/ROBOT_SETTINGS_BUTTON_SQUARE.png",
+                                                   "resources/pl_ui_icons/PRESSSED_ROBOT_SETTINGS_BUTTON_SQUARE.png",
+                                                   "manualMove",
+                                                   self.onButton4Clicked)
+
+        self.buttons = [self.startButtoncConfig, self.stopButtonConfig, self.createWorkpieceConfig,
+                        self.calibrationButtonConfig, self.manualMoveButtonConfig]
 
         side_menu = Sidebar(self.screenWidth, self.buttons)
         side_menu.setStyleSheet("background-color: white; padding: 0px;")
@@ -99,6 +108,6 @@ if __name__ == "__main__":
     import sys
 
     app = QApplication(sys.argv)
-    window = MainContent(800,app)
+    window = MainContent(800, app)
     window.show()
     sys.exit(app.exec())

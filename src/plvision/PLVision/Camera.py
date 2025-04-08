@@ -11,7 +11,7 @@
 """
 import cv2
 import numpy as np  # Import numpy
-
+import platform
 
 class Camera:
     """
@@ -58,7 +58,14 @@ class Camera:
         Returns:
             cv2.VideoCapture: The initialized camera capture object.
         """
-        cap = cv2.VideoCapture(cameraIndex,cv2.CAP_DSHOW)
+        if platform.system() == "Windows":
+            cap = cv2.VideoCapture(cameraIndex, cv2.CAP_DSHOW)
+        elif platform.system() == "Linux":
+            print("Linux detected")
+            print("index ", cameraIndex)
+            cap = cv2.VideoCapture(cameraIndex)
+        else:
+            raise Exception("Unsupported OS")
         cap.set(3, width)  # cv2.CAP_PROP_FRAME_WIDTH
         cap.set(4, height)  # cv2.CAP_PROP_FRAME_HEIGHT
         return cap
