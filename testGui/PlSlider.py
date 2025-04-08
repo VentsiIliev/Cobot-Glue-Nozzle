@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QWidget, QSlider, QPushButton, QHBoxLayout, QVBoxLayout, QLabel, QSizePolicy
-from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtCore import Qt, QSize, QTimer
 from PyQt6.QtGui import QIcon
 
 
@@ -22,12 +22,23 @@ class PlSlider(QWidget):
         # Set size policy to expand properly within layouts
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
 
+        # Create timers for continuous button press
+        self.minus_timer = QTimer(self)
+        self.plus_timer = QTimer(self)
+
+        # Set the interval for the timers (e.g., 100ms)
+        self.minus_timer.setInterval(100)
+        self.plus_timer.setInterval(100)
+
+        # Connect the timers to the actions
+        self.minus_timer.timeout.connect(self.decrease_value)
+        self.plus_timer.timeout.connect(self.increase_value)
+
     def _initialize_widgets(self, orientation, label_text):
         """Initialize the widgets (slider, buttons, labels)"""
         # Create a label to describe the setting
         self.label = QLabel(label_text, self)
         self.label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-        # self.label.setStyleSheet("font-size: 16px; font-weight: bold; color: black;")
 
         # Create the slider
         self.slider = QSlider(orientation)
@@ -40,13 +51,12 @@ class PlSlider(QWidget):
 
         # Create buttons to increase and decrease the value with icons
         self.minus_button = self._create_button("resources/pl_ui_icons/MINUS_BUTTON.png")  # Icon for minus
-        self.plus_button = self._create_button("resources/pl_ui_icons/PLUS_BUTTON.png")    # Icon for plus
+        self.plus_button = self._create_button("resources/pl_ui_icons/PLUS_BUTTON.png")  # Icon for plus
 
         # Value label to display current value of slider
         self.value_label = QLabel(str(self.slider.value()), self)
         self.value_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.value_label.setFixedWidth(50)  # Adjust fixed width for better fit
-        # self.value_label.setStyleSheet("font-size: 16px; font-weight: bold; color: black;")
 
     def _set_slider_styles(self):
         """Set the style for the slider"""
@@ -57,7 +67,7 @@ class PlSlider(QWidget):
                 background: #000000;
                 margin: 2px 0;
             }
-  
+
             QSlider::handle:horizontal {
                 background: #905BA9;
                 border: 1px solid #905BA9;
@@ -67,7 +77,6 @@ class PlSlider(QWidget):
                 border-radius: 12px;
             }
                       """)
-
 
     def _create_button(self, icon_path):
         """Helper function to create buttons with icons"""
@@ -107,8 +116,26 @@ class PlSlider(QWidget):
     def _connect_signals(self):
         """Connect the signals (slider value change and button clicks)"""
         self.slider.valueChanged.connect(self.update_value_label)
-        self.minus_button.clicked.connect(self.decrease_value)
-        self.plus_button.clicked.connect(self.increase_value)
+        self.minus_button.pressed.connect(self.start_decreasing_value)
+        self.plus_button.pressed.connect(self.start_increasing_value)
+        self.minus_button.released.connect(self.stop_decreasing_value)
+        self.plus_button.released.connect(self.stop_increasing_value)
+
+    def start_decreasing_value(self):
+        """Start decreasing the slider value when the button is pressed"""
+        self.minus_timer.start()
+
+    def stop_decreasing_value(self):
+        """Stop decreasing the slider value when the button is released"""
+        self.minus_timer.stop()
+
+    def start_increasing_value(self):
+        """Start increasing the slider value when the button is pressed"""
+        self.plus_timer.start()
+
+    def stop_increasing_value(self):
+        """Stop increasing the slider value when the button is released"""
+        self.plus_timer.stop()
 
     def decrease_value(self):
         """Decrease the slider value"""
