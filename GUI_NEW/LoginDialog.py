@@ -7,7 +7,7 @@ class LoginDialog(QDialog):
         super().__init__()
 
         self.setWindowTitle("Login")
-        self.setGeometry(100, 100, 300, 150)
+        self.setGeometry(100, 100, 200, 150)
 
         if parent:
             print("Parent is not None")
