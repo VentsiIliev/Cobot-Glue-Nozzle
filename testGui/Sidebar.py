@@ -85,3 +85,8 @@ class Sidebar(QWidget):
     def alignItemsCenter(self):
         for button in self.buttons:
             self.sidebar_layout.setAlignment(button, Qt.AlignmentFlag.AlignCenter)
+
+    def uncheck_all_buttons(self):
+        """Uncheck all buttons in the sidebar."""
+        for button in self.buttons:
+            button.setChecked(False)

@@ -11,7 +11,7 @@ class CameraFeed(QWidget):
         self.container.setStyleSheet("background-color: red;")
         self.layout = QVBoxLayout(self.container)
         # align the layout to the bottom
-        self.layout.setAlignment(Qt.AlignmentFlag.AlignBottom)
+        self.layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
         self.graphics_view = QGraphicsView(self)

@@ -1,12 +1,11 @@
 # settings_menu.py
-from PyQt6.QtWidgets import QFrame, QVBoxLayout, QLabel, QLineEdit, QComboBox, QPushButton, QMessageBox
-from PyQt6.QtCore import Qt
-
 import os
 
-from GUI_NEW.customWidgets.CustomLineEdit import CustomLineEdit
-from GUI_NEW.Enums import Widget
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QFrame, QVBoxLayout, QLabel, QComboBox, QPushButton
 
+from GUI_NEW.Enums import Widget
+from GUI_NEW.customWidgets.CustomLineEdit import CustomLineEdit
 
 SETTINGS_STYLESHEET = os.path.join("GUI_NEW", "settings.qss")
 TITLE = "Create Workpiece"

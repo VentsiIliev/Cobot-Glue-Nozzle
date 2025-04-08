@@ -160,6 +160,69 @@ class MainWindow(QMainWindow):
 
 # Run the application
 app = QApplication(sys.argv)
+app.setStyleSheet("""
+    QLineEdit {
+        border: 2px solid #905BA9;
+        border-radius: 4px;
+        padding: 4px;
+    }
+
+    QComboBox {
+        border: 2px solid #905BA9;
+        border-radius: 4px;
+        padding: 4px;
+    }
+
+    QComboBox QAbstractItemView {
+        border: 2px solid #905BA9;
+        background-color: white;
+        selection-background-color: #E8D8F0;
+        selection-color: black;
+        color: black;
+    }
+
+    QComboBox::drop-down {
+        border: none;
+    }
+
+    QComboBox QAbstractItemView::item:hover {
+        background-color: #E8D8F0;
+        color: black;
+    }
+
+    QCheckBox {
+        spacing: 6px;
+        padding: 4px;
+        border: 2px solid #905BA9;
+        border-radius: 4px;
+    }
+
+    QCheckBox::indicator {
+        width: 16px;
+        height: 16px;
+    }
+
+    QCheckBox::indicator:checked {
+        background-color: #905BA9;
+        border: 1px solid #905BA9;
+    }
+
+    QCheckBox::indicator:unchecked {
+        background-color: white;
+        border: 1px solid #905BA9;
+    }
+    
+      QPushButton {
+        border: none;
+        background: transparent;
+        padding: 0px;
+    }
+    
+""")
+
+
+
+
 window = MainWindow()
 window.show()
 sys.exit(app.exec())

@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QStackedWidget, Q
 from ButtonConfig import ButtonConfig
 from CameraFeed import CameraFeed
 from Sidebar import Sidebar
+from CreateWorkpieceForm import CreateWorkpieceForm
 
 
 class MainContent(QWidget):
@@ -16,6 +17,7 @@ class MainContent(QWidget):
         # Main layout for the content
         self.main_layout = QHBoxLayout(self)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
+        # self.main_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         # Create and add the side menu to the main content
         self.side_menu = self.create_side_menu()
@@ -31,7 +33,7 @@ class MainContent(QWidget):
         self.content_area = QWidget()
         self.content_area.setContentsMargins(0, 0, 0, 0)
 
-        self.content_layout = QVBoxLayout(self.content_area)
+        self.content_layout = QHBoxLayout(self.content_area)
         self.content_layout.setContentsMargins(0, 0, 0, 0)
         self.content_layout.setSpacing(0)
 
@@ -44,6 +46,7 @@ class MainContent(QWidget):
         self.cameraFeed = CameraFeed()
         self.cameraFeedLayout = QVBoxLayout()
         self.content_layout.addWidget(self.cameraFeed)
+        self.createWorkpieceForm = None
 
     def create_side_menu(self):
         """Create a side menu inside the main content area."""
@@ -60,7 +63,7 @@ class MainContent(QWidget):
         self.createWorkpieceConfig = ButtonConfig("resources/pl_ui_icons/CREATE_WORKPIECE_BUTTON_SQUARE.png",
                                                   "resources/pl_ui_icons/PRESSED_CREATE_WORKPIECE_BUTTON_SQUARE.png",
                                                   "createWorkpiece",
-                                                  self.onButton4Clicked)
+                                                  self.onCreateWorkpiece)
 
         self.calibrationButtonConfig = ButtonConfig("resources/pl_ui_icons/CALIBRATION_BUTTON_SQUARE.png",
                                                     "resources/pl_ui_icons/PRESSED_CALIBRATION_BUTTON_SQUARE.png",
@@ -88,6 +91,19 @@ class MainContent(QWidget):
 
     def onButton4Clicked(self):
         print("Button 4 clicked")
+
+    def onCreateWorkpiece(self):
+        if self.createWorkpieceForm is None:
+            self.createWorkpieceForm = CreateWorkpieceForm(self,self.onCreateWorkpieceSubmit)
+            self.content_layout.addWidget(self.createWorkpieceForm)
+        else:
+            self.createWorkpieceForm.close()
+            self.createWorkpieceForm = None
+
+    def onCreateWorkpieceSubmit(self):
+        print("Unchecking buttons")
+        self.side_menu.uncheck_all_buttons()
+        self.createWorkpieceForm = None
 
     def resizeEvent(self, event):
         """Resize content and side menu dynamically."""
