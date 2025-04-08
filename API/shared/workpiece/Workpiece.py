@@ -23,6 +23,8 @@ class WorkpieceField(Enum):
     def getAsLabel(self):
         return self.name.capitalize().replace("_", " ")
 
+    def lower(self):
+        return self.value.lower()
 
 class AbstractWorkpiece(ABC):
     def __init__(self, workpieceId, contour):

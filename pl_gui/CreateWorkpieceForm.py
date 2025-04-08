@@ -1,183 +1,150 @@
-from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QComboBox, QPushButton, QWidget
-from PyQt6.QtGui import QPixmap
-from PyQt6.QtGui import QIcon
-from PyQt6.QtCore import QSize
+import os
+from PyQt6.QtCore import Qt,QSize
+from PyQt6.QtWidgets import QFrame, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QLineEdit, QPushButton, QWidget
+from PyQt6.QtGui import QPixmap, QIcon
+from specific.enums.ToolID import ToolID
+from specific.enums.Gripper import Gripper
+from specific.enums.Program import Program
+from specific.enums.GlueType import GlueType
+from specific.enums.WorkpieceField import WorkpieceField
+from enum import Enum
+
+
+# Assuming the path to stylesheets
+SETTINGS_STYLESHEET = os.path.join("GUI_NEW", "settings.qss")
+TITLE = "Create Workpiece"
+
 
 class CreateWorkpieceForm(QWidget):
     def __init__(self, parent=None, callBack=None):
         super().__init__(parent)
         self.onSubmitCallBack = callBack
-        self.setWindowTitle("Create Workpiece Form")
+        self.setWindowTitle(TITLE)
         self.setContentsMargins(0, 0, 0, 0)
+
         self.settingsLayout = QVBoxLayout()
         self.settingsLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.setLayout(self.settingsLayout)
-        self.icon_widgets = []  # Store original pixmaps
+
+        self.icon_widgets = []  # To store icon widgets for resizing later
 
         self.addWidgets()
 
     def addWidgets(self):
-        field_height = 40  # Set a higher height for fields for better touch interaction
-        button_height = 50  # Set a height for buttons for better touch interaction
+        field_height = 40
+        button_height = 50
 
-        # Add an icon and a line edit for Workpiece ID
-        workpiece_id_layout = QHBoxLayout()
-        icon_label = self.create_icon_label("resources/createWorkpieceIcons/WOPIECE_ID_ICON_2.png")
-        workpiece_id_layout.addWidget(icon_label)
-        self.workpiece_id_edit = QLineEdit()
-        self.workpiece_id_edit.setPlaceholderText("Enter Workpiece ID")
-        self.workpiece_id_edit.setMinimumHeight(field_height)
-        workpiece_id_layout.addWidget(self.workpiece_id_edit)
-        workpiece_id_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        self.settingsLayout.addLayout(workpiece_id_layout)
+        # Add widgets dynamically for workpiece form
+        self.add_input_field(WorkpieceField.WORKPIECE_ID, "Enter Workpiece ID", "resources/createWorkpieceIcons/WOPIECE_ID_ICON_2.png")
+        self.add_input_field(WorkpieceField.NAME, "Enter Workpiece Name", "resources/createWorkpieceIcons/WORKPIECE_NAME_ICON.png")
+        self.add_input_field(WorkpieceField.DESCRIPTION, "Enter Description", "resources/createWorkpieceIcons/DESCRIPTION_WORKPIECE_BUTTON_SQUARE.png")
+        self.add_input_field(WorkpieceField.OFFSET, "Enter Offset", "resources/createWorkpieceIcons/OFFSET_VECTOR.png")
+        self.add_input_field(WorkpieceField.HEIGHT, "Enter Workpiece Weight", "resources/createWorkpieceIcons/HEIGHT_ICON.png")
 
-        # Add an icon and a line edit for Workpiece Name
-        workpiece_name_layout = QHBoxLayout()
-        icon_label = self.create_icon_label("resources/createWorkpieceIcons/WORKPIECE_NAME_ICON.png")
-        workpiece_name_layout.addWidget(icon_label)
-        self.workpiece_name_edit = QLineEdit()
-        self.workpiece_name_edit.setPlaceholderText("Enter Workpiece Name")
-        self.workpiece_name_edit.setMinimumHeight(field_height)
-        workpiece_name_layout.addWidget(self.workpiece_name_edit)
-        workpiece_name_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        self.settingsLayout.addLayout(workpiece_name_layout)
+        # Dropdown fields for Tool ID, Gripper ID, etc.
+        self.add_dropdown_field(WorkpieceField.TOOL_ID, ToolID, "resources/createWorkpieceIcons/TOOL_ID_ICON.png")
+        self.add_dropdown_field(WorkpieceField.GRIPPER_ID, Gripper, "resources/createWorkpieceIcons/GRIPPER_ID_ICON.png")
+        self.add_dropdown_field(WorkpieceField.GLUE_TYPE, GlueType, "resources/createWorkpieceIcons/GLUE_TYPE_ICON.png")
+        self.add_dropdown_field(WorkpieceField.PROGRAM, Program, "resources/createWorkpieceIcons/PROGRAM_ICON.png")
 
-        # Add an icon and a line edit for Description
-        description_layout = QHBoxLayout()
-        icon_label = self.create_icon_label("resources/createWorkpieceIcons/DESCRIPTION_WORKPIECE_BUTTON_SQUARE.png")
-        description_layout.addWidget(icon_label)
-        self.description_edit = QLineEdit()
-        self.description_edit.setPlaceholderText("Enter Description")
-        self.description_edit.setMinimumHeight(field_height)
-        description_layout.addWidget(self.description_edit)
-        description_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        self.settingsLayout.addLayout(description_layout)
+        # Add Material Type dropdown (manual list, replace with enums if needed)
+        self.add_dropdown_field(WorkpieceField.MATERIAL, ["Material1", "Material2", "Material3"], "resources/createWorkpieceIcons/MATERIAL_ICON.png")
 
-        # Add an icon and a combo box for Tool ID
-        tool_id_layout = QHBoxLayout()
-        icon_label = self.create_icon_label("resources/createWorkpieceIcons/TOOL_ID_ICON.png")
-        tool_id_layout.addWidget(icon_label)
-        self.tool_id_combo = QComboBox()
-        self.tool_id_combo.addItems(["Tool1", "Tool2", "Tool3"])
-        self.tool_id_combo.setMinimumHeight(field_height)
-        tool_id_layout.addWidget(self.tool_id_combo)
-        tool_id_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        self.settingsLayout.addLayout(tool_id_layout)
-
-        # Add an icon and a combo box for Gripper ID
-        gripper_id_layout = QHBoxLayout()
-        icon_label = self.create_icon_label("resources/createWorkpieceIcons/GRIPPER_ID_ICON.png")
-        gripper_id_layout.addWidget(icon_label)
-        self.gripper_id_combo = QComboBox()
-        self.gripper_id_combo.addItems(["Gripper1", "Gripper2", "Gripper3"])
-        self.gripper_id_combo.setMinimumHeight(field_height)
-        gripper_id_layout.addWidget(self.gripper_id_combo)
-        gripper_id_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        self.settingsLayout.addLayout(gripper_id_layout)
-
-        # Add an icon and a combo box for Glue Type
-        glue_type_layout = QHBoxLayout()
-        icon_label = self.create_icon_label("resources/createWorkpieceIcons/GLUE_TYPE_ICON.png")
-        glue_type_layout.addWidget(icon_label)
-        self.glue_type_combo = QComboBox()
-        self.glue_type_combo.addItems(["Glue1", "Glue2", "Glue3"])
-        self.glue_type_combo.setMinimumHeight(field_height)
-        glue_type_layout.addWidget(self.glue_type_combo)
-        glue_type_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        self.settingsLayout.addLayout(glue_type_layout)
-
-        # Add an icon and a combo box for Program
-        program_layout = QHBoxLayout()
-        icon_label = self.create_icon_label("resources/createWorkpieceIcons/PROGRAM_ICON.png")
-        program_layout.addWidget(icon_label)
-        self.program_combo = QComboBox()
-        self.program_combo.addItems(["Program1", "Program2", "Program3"])
-        self.program_combo.setMinimumHeight(field_height)
-        program_layout.addWidget(self.program_combo)
-        program_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        self.settingsLayout.addLayout(program_layout)
-
-        # Add an icon and a combo box for Material Type
-        material_type_layout = QHBoxLayout()
-        icon_label = self.create_icon_label("resources/createWorkpieceIcons/MATERIAL_ICON.png")
-        material_type_layout.addWidget(icon_label)
-        self.material_type_combo = QComboBox()
-        self.material_type_combo.addItems(["Material1", "Material2", "Material3"])
-        self.material_type_combo.setMinimumHeight(field_height)
-        material_type_layout.addWidget(self.material_type_combo)
-        material_type_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        self.settingsLayout.addLayout(material_type_layout)
-
-        # Add an icon and a line edit for Offset
-        offset_layout = QHBoxLayout()
-        icon_label = self.create_icon_label("resources/createWorkpieceIcons/OFFSET_VECTOR.png")
-        offset_layout.addWidget(icon_label)
-        self.offset_edit = QLineEdit()
-        self.offset_edit.setPlaceholderText("Enter Offset")
-        self.offset_edit.setMinimumHeight(field_height)
-        offset_layout.addWidget(self.offset_edit)
-        offset_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        self.settingsLayout.addLayout(offset_layout)
-
-        # Add an icon and a line edit for Workpiece Weight
-        workpiece_weight_layout = QHBoxLayout()
-        icon_label = self.create_icon_label("resources/createWorkpieceIcons/HEIGHT_ICON.png")
-        workpiece_weight_layout.addWidget(icon_label)
-        self.workpiece_weight_edit = QLineEdit()
-        self.workpiece_weight_edit.setPlaceholderText("Enter Workpiece Weight")
-        self.workpiece_weight_edit.setMinimumHeight(field_height)
-        workpiece_weight_layout.addWidget(self.workpiece_weight_edit)
-        workpiece_weight_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        self.settingsLayout.addLayout(workpiece_weight_layout)
-
-        # Add a horizontal layout for buttons
+        # Add button layout (Submit, Cancel)
         button_layout = QHBoxLayout()
-
-        # Add a submit button with an icon
-        self.submit_button = QPushButton("")
-        self.submit_button.setIcon(
-            QIcon("resources/createWorkpieceIcons/ACCEPT_BUTTON.png"))  # Replace with the actual path to your icon
-        self.submit_button.setMinimumHeight(button_height)
-        self.submit_button.clicked.connect(self.onSubmit)
-        button_layout.addWidget(self.submit_button)
-
-        # Add a cancel button with an icon
-        self.cancelButton = QPushButton("")
-        self.cancelButton.setIcon(QIcon("resources/createWorkpieceIcons/CANCEL_BUTTON.png"))  # Replace with the actual path to your icon
-        self.cancelButton.setMinimumHeight(button_height)
-        self.cancelButton.clicked.connect(self.onCancel)
-        button_layout.addWidget(self.cancelButton)
-
-        # Add the button layout to the main settings layout
+        self.add_button("Accept", "resources/createWorkpieceIcons/ACCEPT_BUTTON.png", button_layout)
+        self.add_button("Cancel", "resources/createWorkpieceIcons/CANCEL_BUTTON.png", button_layout)
         self.settingsLayout.addLayout(button_layout)
 
-    def onCancel(self):
-        self.onSubmitCallBack()
-        self.close()
+    def add_input_field(self, label, placeholder, icon_path):
+        """ Helper method to add a label, icon, and input field """
+        layout = QHBoxLayout()
+        icon_label = self.create_icon_label(icon_path)
+        layout.addWidget(icon_label)
+        input_field = QLineEdit()
+        input_field.setPlaceholderText(placeholder)
+        input_field.setMinimumHeight(40)
+        layout.addWidget(input_field)
+        layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.settingsLayout.addLayout(layout)
+        setattr(self, f"{label.lower().replace(' ', '_')}_edit", input_field)  # Dynamic attribute
+        print(f"{label.lower().replace(' ', '_')}_edit")
+
+    def add_dropdown_field(self, label, enum_class, icon_path):
+        """ Helper method to add a dropdown (QComboBox) with enum items """
+        layout = QHBoxLayout()
+        icon_label = self.create_icon_label(icon_path)
+        layout.addWidget(icon_label)
+        dropdown = QComboBox()
+
+        # Check if enum_class is an enum type
+        if isinstance(enum_class, type) and issubclass(enum_class, Enum):
+            # If it's an enum, get the names of the enum values
+            dropdown.addItems([item.name for item in enum_class])
+        else:
+            # If it's a list of strings, add them directly
+            dropdown.addItems(enum_class)
+
+        dropdown.setMinimumHeight(40)
+        layout.addWidget(dropdown)
+        layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.settingsLayout.addLayout(layout)
+        setattr(self, f"{label.lower().replace(' ', '_')}_combo", dropdown)  # Dynamic attribute
+        print(f"{label.lower().replace(' ', '_')}_combo")
+
+    def add_button(self, button_type, icon_path, layout):
+        """ Helper method to add a button with an icon and click functionality """
+        button = QPushButton("")
+        button.setIcon(QIcon(icon_path))
+        button.setMinimumHeight(50)
+
+        # Store references to the buttons
+        if button_type == "Accept":
+            self.submit_button = button  # Store reference to the submit button
+            button.clicked.connect(self.onSubmit)
+        else:
+            self.cancel_button = button  # Store reference to the cancel button
+            button.clicked.connect(self.onCancel)
+
+        layout.addWidget(button)
 
     def onSubmit(self):
-        data = {
-            "workpiece_id": self.workpiece_id_edit.text().strip(),
-            "workpiece_name": self.workpiece_name_edit.text().strip(),
-            "description": self.description_edit.text().strip(),
-            "tool_id": self.tool_id_combo.currentText().strip(),
-            "gripper_id": self.gripper_id_combo.currentText().strip(),
-            "glue_type": self.glue_type_combo.currentText().strip(),
-            "program": self.program_combo.currentText().strip(),
-            "material_type": self.material_type_combo.currentText().strip(),
-            "offset": self.offset_edit.text().strip(),
-            "workpiece_weight": self.workpiece_weight_edit.text().strip()
-        }
 
-        # Print the collected data (or handle it as needed)
-        print("Collected Data:", data)
+        # gett all atributes of the class
+        for attr_name in dir(self):
+            # Split by "_"
+            parts = attr_name.split("_")
+            key = "_".join(parts[:-1]).upper()  # Join parts except the last one and convert to uppercase
+            attr_type = parts[-1]  # The last part indicates the type
+            print(f"key = {key}, type = {attr_type}")
+            # FIX ME !!!
 
-        if self.onSubmitCallBack is not None:
+        # """ Collect form data and submit it """
+        # data = {
+        #     WorkpieceField.WORKPIECE_ID: self.workpiece_id_edit.text().strip(),
+        #     WorkpieceField.NAME: self.workpiece_name_edit.text().strip(),
+        #     WorkpieceField.DESCRIPTION: self.description_edit.text().strip(),
+        #     WorkpieceField.TOOL_ID: self.tool_id_combo.currentText().strip(),
+        #     WorkpieceField.GRIPPER_ID: self.gripper_id_combo.currentText().strip(),
+        #     WorkpieceField.GLUE_TYPE: self.glue_type_combo.currentText().strip(),
+        #     WorkpieceField.PROGRAM: self.program_combo.currentText().strip(),
+        #     WorkpieceField.MATERIAL: self.material_type_combo.currentText().strip(),
+        #     WorkpieceField.OFFSET: self.offset_edit.text().strip(),
+        #     WorkpieceField.HEIGHT: self.workpiece_height_edit.text().strip()
+        # }
+        # print("Collected Data:", data)
+        # if self.onSubmitCallBack:
+        #     self.onSubmitCallBack()
+        # self.close()
+
+    def onCancel(self):
+        """ Cancel the operation and close the form """
+        if self.onSubmitCallBack:
             self.onSubmitCallBack()
         self.close()
 
     def create_icon_label(self, path, size=24):
+        """ Create a label with an icon, scaled to a specific size """
         pixmap = QPixmap(path)
         label = QLabel()
         label.setPixmap(pixmap.scaled(size, size, Qt.AspectRatioMode.KeepAspectRatio,
@@ -186,19 +153,24 @@ class CreateWorkpieceForm(QWidget):
         return label
 
     def resizeEvent(self, event):
+        """ Handle resizing of the window and icon sizes """
         super().resizeEvent(event)
         newWidth = self.parent().width()
 
         # Resize the icons in the labels
         for label, original_pixmap in self.icon_widgets:
-            label.setPixmap(original_pixmap.scaled(int(newWidth*0.02), int(newWidth*0.02),
+            label.setPixmap(original_pixmap.scaled(int(newWidth * 0.02), int(newWidth * 0.02),
                                                    Qt.AspectRatioMode.KeepAspectRatio,
                                                    Qt.TransformationMode.SmoothTransformation))
 
-        # Resize the icons in the buttons
-        button_icon_size = QSize(int(newWidth*0.05), int(newWidth*0.05))
-        self.submit_button.setIconSize(button_icon_size)
-        self.cancelButton.setIconSize(button_icon_size)
+        # Resize the icons in the buttons if they exist
+        if hasattr(self, 'submit_button') and self.submit_button:
+            button_icon_size = QSize(int(newWidth * 0.05), int(newWidth * 0.05))
+            self.submit_button.setIconSize(button_icon_size)
+
+        if hasattr(self, 'cancel_button') and self.cancel_button:
+            button_icon_size = QSize(int(newWidth * 0.05), int(newWidth * 0.05))
+            self.cancel_button.setIconSize(button_icon_size)
 
 
 if __name__ == "__main__":
