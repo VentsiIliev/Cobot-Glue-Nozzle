@@ -5,6 +5,7 @@ from ButtonConfig import ButtonConfig
 from CameraFeed import CameraFeed
 from Sidebar import Sidebar
 from CreateWorkpieceForm import CreateWorkpieceForm
+from ManualControlWidget import ManualControlWidget
 
 
 class MainContent(QWidget):
@@ -47,6 +48,7 @@ class MainContent(QWidget):
         self.cameraFeedLayout = QVBoxLayout()
         self.content_layout.addWidget(self.cameraFeed)
         self.createWorkpieceForm = None
+        self.manualMoveContent = None
 
     def create_side_menu(self):
         """Create a side menu inside the main content area."""
@@ -73,7 +75,7 @@ class MainContent(QWidget):
         self.manualMoveButtonConfig = ButtonConfig("resources/pl_ui_icons/ROBOT_SETTINGS_BUTTON_SQUARE.png",
                                                    "resources/pl_ui_icons/PRESSSED_ROBOT_SETTINGS_BUTTON_SQUARE.png",
                                                    "manualMove",
-                                                   self.onButton4Clicked)
+                                                   self.onManualMoveButton)
 
         self.buttons = [self.startButtoncConfig, self.stopButtonConfig, self.createWorkpieceConfig,
                         self.calibrationButtonConfig, self.manualMoveButtonConfig]
@@ -92,13 +94,34 @@ class MainContent(QWidget):
     def onButton4Clicked(self):
         print("Button 4 clicked")
 
+    def onManualMoveButton(self):
+        if self.manualMoveContent is None:
+
+            if self.createWorkpieceForm is not None:
+                self.createWorkpieceForm.close()
+                self.createWorkpieceForm = None
+
+            self.manualMoveContent = ManualControlWidget(self,self.manualMoveCallbacl)
+            self.content_layout.addWidget(self.manualMoveContent)
+        else:
+            self.manualMoveContent.close()
+            self.manualMoveContent = None
+
     def onCreateWorkpiece(self):
         if self.createWorkpieceForm is None:
+
+            if self.manualMoveContent is not None:
+                self.manualMoveContent.close()
+                self.manualMoveContent = None
+
             self.createWorkpieceForm = CreateWorkpieceForm(self,self.onCreateWorkpieceSubmit)
             self.content_layout.addWidget(self.createWorkpieceForm)
         else:
             self.createWorkpieceForm.close()
             self.createWorkpieceForm = None
+
+    def manualMoveCallbacl(self):
+        self.manualMoveContent = None
 
     def onCreateWorkpieceSubmit(self):
         print("Unchecking buttons")
