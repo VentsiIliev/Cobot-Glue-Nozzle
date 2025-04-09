@@ -8,12 +8,14 @@ class GlueNozzleService:
     def __init__(self):
         self.slave = 13
 
-        # Determine OS and set the correct serial port
-        if platform.system() == "Windows":
-            self.port = "COM5"  # Adjust as necessary
-        else:  # Assuming Linux
-            self.port = "/dev/ttyUSB1"  # Adjust as necessary
-            # self.port = "ttyUSB1"  # Adjust as necessary
+        # # Determine OS and set the correct serial port
+        # if platform.system() == "Windows":
+        #     self.port = "COM5"  # Adjust as necessary
+        # else:  # Assuming Linux
+        #     self.port = "/dev/ttyUSB1"  # Adjust as necessary
+        #     # self.port = "ttyUSB1"  # Adjust as necessary
+
+        self.port = self.get_modbus_port()
 
         print("Slave:", self.slave)
         print("Port:", self.port)
@@ -44,3 +46,27 @@ class GlueNozzleService:
         self.modbusClient.writeRegister(100, 0)
         print("Stopped glue dispensing")
         # self.modbusClient.writeRegister(101, 4)
+
+    def get_modbus_port(self):
+        if platform.system() == "Windows":
+            return "COM5"  # Adjust as necessary
+        else:  # Assuming Linux
+            # Search for USB serial ports
+            ports = self.find_usb_ports()
+            if ports:
+                # Check for the one that matches your Modbus RS485 adapter
+                return ports[0]
+            else:
+                raise Exception("No Modbus RS485 serial ports found!")
+
+    def find_usb_ports(self):
+        # List all available USB serial ports
+        ports = []
+        for port in serial.tools.list_ports.comports():
+            if 'USB' in port.description:  # Filter by USB description
+                print(f"Found port: {port.device} - {port.description}")
+                # You can add more specific filtering based on your device
+                # For example, check if the device description matches a known RS485 device
+                if "RS485" in port.description or "Modbus" in port.description:
+                    ports.append(port.device)
+        return ports

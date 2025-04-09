@@ -125,6 +125,9 @@ class PlSlider(QWidget):
         self.minus_button.released.connect(self.stop_decreasing_value)
         self.plus_button.released.connect(self.stop_increasing_value)
 
+    def setDefaultValue(self,value):
+        self.slider.setValue(value)
+
     def start_decreasing_value(self):
         """Start decreasing the slider value when the button is pressed"""
         self.minus_timer.start()

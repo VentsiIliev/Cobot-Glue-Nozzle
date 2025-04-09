@@ -40,6 +40,7 @@ class ManualControlWidget(QWidget):
         slider_layout.setSpacing(0)
 
         self.slider = PlSlider(label_text="Step", parent=self)
+        self.slider.setDefaultValue(1)
         slider_layout.addWidget(self.slider)
         main_layout.addLayout(slider_layout, 0, 0)
 
