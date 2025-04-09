@@ -1,6 +1,8 @@
 import time
 import platform
 import minimalmodbus
+import serial.tools.list_ports
+
 
 from GlueDispensingApplication.modbusCommunication.ModbusClientSingleton import ModbusClientSingleton
 
