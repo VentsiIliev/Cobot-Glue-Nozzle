@@ -64,11 +64,13 @@ class GlueNozzleService:
 
         for line in lines:
             if "now attached" in line:  # Check if "now attached" is in the line
+                print("line: ",line)
                 if re.search(pattern, line):  # If a match for the pattern is found
                     # Extract the ttyUSB device from the matched line
                     match = re.search(pattern, line)
                     if match:
-                        device = f"/dev/ttyUSB{match.group(1)}"  # Extract the number from the regex match
+                        device = f"/dev/ttyUSB{match.group(1)}"
+                        print("Device: ",device)# Extract the number from the regex match
                         return device
 
         return None  # If no match is found
