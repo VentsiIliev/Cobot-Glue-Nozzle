@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QVBoxLayout, QLabel, QWidget, QApplication, QHBoxLayout, QSizePolicy
 from PyQt6.QtCore import Qt
-from PlSlider import PlSlider
+from .PlSlider import PlSlider
 import sys
 
 
@@ -50,6 +50,10 @@ class CameraSettingsTabLayout(QVBoxLayout):
         # Set the overall layout to left and top alignment
         self.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
 
+    def updateValues(self,cameraSettings):
+        self.index_slider.slider.setValue(cameraSettings.get_camera_index())
+        self.width_slider.slider.setValue(cameraSettings.get_camera_width())
+        self.height_slider.slider.setValue(cameraSettings.get_camera_height())
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

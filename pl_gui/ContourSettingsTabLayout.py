@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QWidget, QCheckBox, QSpacerItem, QSizePolicy
 from PyQt6.QtCore import Qt
-from PlSlider import PlSlider  # Assuming PlSlider is available from previous code
+from .PlSlider import PlSlider  # Assuming PlSlider is available from previous code
 
 class ContourSettingsTabLayout(QVBoxLayout):
     """Handles layout and contents of the Contour Settings tab."""

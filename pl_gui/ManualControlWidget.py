@@ -1,73 +1,67 @@
+import os
 from PyQt6.QtCore import QSize, Qt, QTimer
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QWidget, QPushButton, QGridLayout, QSizePolicy,
     QApplication, QSpacerItem, QHBoxLayout, QVBoxLayout
 )
-from PlSlider import PlSlider
+from .PlSlider import PlSlider
 
+RESOURCE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources", "manualMoveIcons")
+Z_PLUS_ICON_PATH = os.path.join(RESOURCE_DIR, "Z+_BUTTON.png")
+Z_MINUS_ICON_PATH = os.path.join(RESOURCE_DIR, "Z-_BUTTON.png")
+X_PLUS_ICON_PATH = os.path.join(RESOURCE_DIR, "X+_BUTTON.png")
+X_MINUS_ICON_PATH = os.path.join(RESOURCE_DIR, "X-_BUTTON.png")
+Y_PLUS_ICON_PATH = os.path.join(RESOURCE_DIR, "Y+_BUTTON.png")
+Y_MINUS_ICON_PATH = os.path.join(RESOURCE_DIR, "Y-_BUTTON.png")
+CANCEL_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "CANCEL_BUTTON.png")
 
 class ManualControlWidget(QWidget):
-    BASE_DIR = "resources/manualMoveIcons/"
-
-    def __init__(self, parent=None,callback = None):
+    def __init__(self, parent=None, callback=None, jogCallback = None):
         super().__init__(parent)
-        self.initUI()
         self.callback = callback
+        self.jogCallback = jogCallback
+        self.onSaveCallback = None
+        self.initUI()
 
     def initUI(self):
-        # Apply a single border around the entire widget (no internal borders)
-
-
-        # Main layout (grid) for the entire widget
         main_layout = QGridLayout()
-        main_layout.setSpacing(0)  # Reduce spacing inside the main layout
-        main_layout.setContentsMargins(0, 0, 0, 0)  # No margins to avoid extra gaps
+        main_layout.setSpacing(0)
+        main_layout.setContentsMargins(0, 0, 0, 0)
 
-        # Create a new vertical layout to hold both Z and XY layouts together
         control_container_layout = QVBoxLayout()
         control_container_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
-        control_container_layout.setContentsMargins(0, 0, 0, 0)  # No inner margins
-        control_container_layout.setSpacing(0)  # No spacing between inner widgets
+        control_container_layout.setContentsMargins(0, 0, 0, 0)
+        control_container_layout.setSpacing(0)
 
-        # Create a layout for the slider and align it to the center
         slider_layout = QHBoxLayout()
         slider_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        slider_layout.setContentsMargins(0, 0, 0, 0)  # No margins in slider layout
-        slider_layout.setSpacing(0)  # No spacing between items in slider layout
+        slider_layout.setContentsMargins(0, 0, 0, 0)
+        slider_layout.setSpacing(0)
 
-        # Create the slider and add it to the slider layout
-        slider = PlSlider(label_text="Step", parent=self)
-        slider_layout.addWidget(slider)
-
-        # Add the slider layout to the control container layout
+        self.slider = PlSlider(label_text="Step", parent=self)
+        slider_layout.addWidget(self.slider)
         main_layout.addLayout(slider_layout, 0, 0)
 
-        # Create horizontal layout for Z axis buttons
         z_layout = QHBoxLayout()
-        z_layout.setSpacing(0)  # Zero spacing between buttons
+        z_layout.setSpacing(0)
         z_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        z_layout.setContentsMargins(0, 0, 0, 0)  # No margins for Z buttons
+        z_layout.setContentsMargins(0, 0, 0, 0)
 
         self.btn_z_plus = QPushButton()
         self.btn_z_minus = QPushButton()
+        self.btn_z_plus.setIcon(QIcon(Z_PLUS_ICON_PATH))
+        self.btn_z_minus.setIcon(QIcon(Z_MINUS_ICON_PATH))
 
-        # Set icons for Z buttons
-        self.btn_z_plus.setIcon(QIcon(self.BASE_DIR + "Z+_BUTTON.png"))
-        self.btn_z_minus.setIcon(QIcon(self.BASE_DIR + "Z-_BUTTON.png"))
-
-        # Customize Z buttons
         for btn in [self.btn_z_plus, self.btn_z_minus]:
             btn.setFixedSize(60, 60)
             btn.setIconSize(QSize(40, 40))
 
-        # Create timers for Z axis buttons
         self.z_plus_timer = QTimer(self)
         self.z_minus_timer = QTimer(self)
         self.z_plus_timer.setInterval(100)
         self.z_minus_timer.setInterval(100)
 
-        # Connect timers to button actions
         self.btn_z_plus.pressed.connect(self.start_z_plus)
         self.btn_z_minus.pressed.connect(self.start_z_minus)
         self.btn_z_plus.released.connect(self.stop_z_plus)
@@ -76,34 +70,28 @@ class ManualControlWidget(QWidget):
         self.z_plus_timer.timeout.connect(self.z_plus_action)
         self.z_minus_timer.timeout.connect(self.z_minus_action)
 
-        # Add Z buttons to layout with no spacer in between
         z_layout.addWidget(self.btn_z_plus)
         z_layout.addWidget(self.btn_z_minus)
 
-        # Create a grid layout for X and Y axis buttons (cross shape)
         cross_layout = QGridLayout()
-        cross_layout.setSpacing(0)  # Zero spacing between buttons
+        cross_layout.setSpacing(0)
         cross_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        cross_layout.setContentsMargins(0, 0, 0, 0)  # No margins in cross layout
+        cross_layout.setContentsMargins(0, 0, 0, 0)
 
-        # Create buttons for X and Y axes
         self.btn_x_minus = QPushButton()
         self.btn_x_plus = QPushButton()
         self.btn_y_plus = QPushButton()
         self.btn_y_minus = QPushButton()
 
-        # Set icons for X and Y buttons
-        self.btn_x_minus.setIcon(QIcon(self.BASE_DIR + "X-_BUTTON.png"))
-        self.btn_y_minus.setIcon(QIcon(self.BASE_DIR + "Y-_BUTTON.png"))
-        self.btn_x_plus.setIcon(QIcon(self.BASE_DIR + "X+_BUTTON.png"))
-        self.btn_y_plus.setIcon(QIcon(self.BASE_DIR + "Y+_BUTTON.png"))
+        self.btn_x_minus.setIcon(QIcon(X_MINUS_ICON_PATH))
+        self.btn_y_minus.setIcon(QIcon(Y_MINUS_ICON_PATH))
+        self.btn_x_plus.setIcon(QIcon(X_PLUS_ICON_PATH))
+        self.btn_y_plus.setIcon(QIcon(Y_PLUS_ICON_PATH))
 
-        # Customize X and Y buttons
         for btn in [self.btn_x_minus, self.btn_x_plus, self.btn_y_plus, self.btn_y_minus]:
             btn.setFixedSize(60, 60)
             btn.setIconSize(QSize(40, 40))
 
-        # Create timers for X and Y buttons
         self.x_plus_timer = QTimer(self)
         self.x_minus_timer = QTimer(self)
         self.y_plus_timer = QTimer(self)
@@ -113,7 +101,6 @@ class ManualControlWidget(QWidget):
         self.y_plus_timer.setInterval(100)
         self.y_minus_timer.setInterval(100)
 
-        # Connect timers to button actions
         self.btn_x_plus.pressed.connect(self.start_x_plus)
         self.btn_x_minus.pressed.connect(self.start_x_minus)
         self.btn_y_plus.pressed.connect(self.start_y_plus)
@@ -129,36 +116,42 @@ class ManualControlWidget(QWidget):
         self.y_plus_timer.timeout.connect(self.y_plus_action)
         self.y_minus_timer.timeout.connect(self.y_minus_action)
 
-        # Arrange the X and Y buttons in a grid (cross shape)
-        cross_layout.addWidget(self.btn_x_minus, 0, 1)  # X- at (0, 1)
-        cross_layout.addWidget(self.btn_y_minus, 1, 0)  # Y- at (1, 0)
-        cross_layout.addWidget(self.btn_x_plus, 2, 1)  # X+ at (2, 1)
-        cross_layout.addWidget(self.btn_y_plus, 1, 2)  # Y+ at (1, 2)
-        # Add a spacer to the layout
-        spacer = QSpacerItem(0, 10, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
-        cross_layout.addItem(spacer, 1, 1)  # Y+ at (1, 2)
+        cross_layout.addWidget(self.btn_x_minus, 0, 1)
+        cross_layout.addWidget(self.btn_y_minus, 1, 0)
+        cross_layout.addWidget(self.btn_x_plus, 2, 1)
+        cross_layout.addWidget(self.btn_y_plus, 1, 2)
 
-        # Add Z layout and cross layout to the control container
+        spacer = QSpacerItem(0, 10, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
+        cross_layout.addItem(spacer, 1, 1)
+
         control_container_layout.addLayout(z_layout)
         control_container_layout.addLayout(cross_layout)
         control_container_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        # Add control container layout to the main layout
         main_layout.addLayout(control_container_layout, 1, 0)
 
-        # Add a spacer to the layout
-        spacer = QSpacerItem(0, 300, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
+        spacer = QSpacerItem(0, 50, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
         main_layout.addItem(spacer)
 
-        # Add close button to layout
+        self.savePointButton = QPushButton("Save Point")
+        self.savePointButton.clicked.connect(self.onSavePoint)
+        self.savePointButton.hide()
+        main_layout.addWidget(self.savePointButton)
+
+        spacer = QSpacerItem(0, 150, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
+        main_layout.addItem(spacer)
+
+
+
         self.close_button = QPushButton("")
-        self.close_button.setIcon(QIcon(self.BASE_DIR + "CANCEL_BUTTON.png"))
+        self.close_button.setIcon(QIcon(CANCEL_BUTTON_ICON_PATH))
         main_layout.addWidget(self.close_button)
         main_layout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
 
-        # Set the main layout for the widget
         self.setLayout(main_layout)
 
+    def onSave(self):
+        print("Saving points")
 
     # Methods for starting/stopping timers for Z, X, Y buttons
     def start_z_plus(self): self.z_plus_timer.start()
@@ -175,12 +168,12 @@ class ManualControlWidget(QWidget):
     def stop_y_minus(self): self.y_minus_timer.stop()
 
     # Action methods for button presses
-    def z_plus_action(self): print("Z+ Action triggered")
-    def z_minus_action(self): print("Z- Action triggered")
-    def x_plus_action(self): print("X+ Action triggered")
-    def x_minus_action(self): print("X- Action triggered")
-    def y_plus_action(self): print("Y+ Action triggered")
-    def y_minus_action(self): print("Y- Action triggered")
+    def z_plus_action(self): self.jogCallback(f"robot/control/manual/jog/jogZPlus/{self.slider.slider.value()}")
+    def z_minus_action(self): self.jogCallback(f"robot/control/manual/jog/jogZMinus/{self.slider.slider.value()}")
+    def x_plus_action(self): self.jogCallback(f"robot/control/manual/jog/jogXPlus/{self.slider.slider.value()}")
+    def x_minus_action(self): self.jogCallback(f"robot/control/manual/jog/jogXMinus/{self.slider.slider.value()}")
+    def y_plus_action(self): self.jogCallback(f"robot/control/manual/jog/jogYPlus/{self.slider.slider.value()}")
+    def y_minus_action(self): self.jogCallback(f"robot/control/manual/jog/jogYMinus/{self.slider.slider.value()}")
 
     def resizeEvent(self, event):
         width = self.width()
@@ -189,7 +182,6 @@ class ManualControlWidget(QWidget):
         if width > 500:
             icon_size = min(width, height) // 8
 
-        # Update icon sizes for buttons dynamically
         for btn in [self.btn_z_plus, self.btn_z_minus, self.btn_x_minus, self.btn_x_plus, self.btn_y_plus, self.btn_y_minus]:
             btn.setIconSize(QSize(icon_size, icon_size))
             btn.setFixedSize(QSize(icon_size, icon_size))
@@ -201,6 +193,15 @@ class ManualControlWidget(QWidget):
 
         super().resizeEvent(event)
 
+    def onSavePoint(self):
+
+        if self.onSaveCallback is None:
+            return
+
+        res, done = self.onSaveCallback()
+
+        if done:
+            self.close
 
     def onClose(self):
         if self.callback is not None:

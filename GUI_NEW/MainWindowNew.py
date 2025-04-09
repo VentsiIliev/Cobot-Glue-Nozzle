@@ -280,9 +280,11 @@ class MainWindow(QMainWindow):
         request= Request(Constants.REQUEST_TYPE_EXECUTE, Constants.ACTION_CALIBRATE, Constants.REQUEST_RESOURCE_ROBOT)
         response = self.sendRequest(request)
         response = Response.from_dict(response)
+
         if response.status == Constants.RESPONSE_STATUS_ERROR:
             print("Error calibrating robot")
             return False, response.message
+
         self.current_content.pause_feed(response.data['image'])
         self.robotControl = RobotControl(self)
         self.mainLayout.insertWidget(1, self.robotControl)

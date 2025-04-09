@@ -1,8 +1,12 @@
+import os
+
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtWidgets import QApplication, QHBoxLayout, QWidget, QPushButton, QLabel
 
-
+RESOURCE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources")
+MENU_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "SANDWICH_MENU.png")
+LOGO_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "logo.ico")
 class Header(QWidget):
     def __init__(self, screen_width, screen_height, toggle_menu_callback):
         super().__init__()
@@ -19,14 +23,14 @@ class Header(QWidget):
 
         # Menu button
         self.menu_button = QPushButton()
-        self.menu_button.setIcon(QIcon("resources/pl_ui_icons/SANDWICH_MENU.png"))
+        self.menu_button.setIcon(QIcon(MENU_ICON_PATH))
         self.menu_button.setToolTip("Toggle Menu")
         self.menu_button.clicked.connect(toggle_menu_callback)
         self.menu_button.setStyleSheet("border: none; background: transparent; padding: 0px;")
 
         # Logo
         self.logo_label = QLabel()
-        self.logo_pixmap = QPixmap("resources/pl_ui_icons/logo.ico")  # Adjust path to your logo file
+        self.logo_pixmap = QPixmap(LOGO_ICON_PATH)  # Adjust path to your logo file
         self.logo_label.setPixmap(self.logo_pixmap)
         self.logo_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         # self.logo_label.setMaximumSize(150,50)

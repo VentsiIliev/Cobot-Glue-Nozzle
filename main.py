@@ -20,6 +20,7 @@ newGui = True
 testRobot = False
 if newGui:
     from GUI_NEW.GUI_NEW import GUI_NEW
+    from pl_gui.runPlGui import PlGui
 else:
     import tkinter as tk
     from GUI.GUI import GUI
@@ -69,8 +70,12 @@ if __name__ == "__main__":
     # INIT MAIN WINDOW
 
     if newGui:
-        gui = GUI_NEW(domesticRequestSender)
+        from pl_gui.controller.Controller import Controller
+        controller= Controller(domesticRequestSender)
+        gui=PlGui(controller=controller)
         gui.start()
+        # gui = GUI_NEW(domesticRequestSender)
+        # gui.start()
     else:
         root = tk.Tk()
         mainWindow = MainWindow(root, domesticRequestSender)

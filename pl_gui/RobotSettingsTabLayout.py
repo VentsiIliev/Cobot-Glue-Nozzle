@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QWidget, QSizePolicy, QSpacerItem
 from PyQt6.QtCore import Qt
-from PlSlider import PlSlider  # Assuming PlSlider is available from your previous code
+from .PlSlider import PlSlider  # Assuming PlSlider is available from your previous code
 
 
 class RobotSettingsTabLayout(QVBoxLayout):
@@ -75,6 +75,11 @@ class RobotSettingsTabLayout(QVBoxLayout):
         self.sliders_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
 
+    def updateValues(self,robotSettings):
+        self.vel_slider.slider.setValue(robotSettings.get_robot_velocity())
+        self.acc_slider.slider.setValue(robotSettings.get_robot_acceleration())
+        self.tool_slider.slider.setValue(robotSettings.get_robot_tool())
+        self.user_slider.slider.setValue(robotSettings.get_robot_user())
 if __name__ == "__main__":
     from PyQt6.QtWidgets import QApplication
     import sys

@@ -1,7 +1,11 @@
+import os
 from PyQt6.QtWidgets import QWidget, QSlider, QPushButton, QHBoxLayout, QVBoxLayout, QLabel, QSizePolicy
 from PyQt6.QtCore import Qt, QSize, QTimer
 from PyQt6.QtGui import QIcon
 
+RESOURCE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources", "pl_ui_icons")
+MINUS_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "MINUS_BUTTON.png")
+PLUS_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "PLUS_BUTTON.png")
 
 class PlSlider(QWidget):
     def __init__(self, orientation=Qt.Orientation.Horizontal, label_text="", parent=None):
@@ -50,8 +54,8 @@ class PlSlider(QWidget):
         self._set_slider_styles()
 
         # Create buttons to increase and decrease the value with icons
-        self.minus_button = self._create_button("resources/pl_ui_icons/MINUS_BUTTON.png")  # Icon for minus
-        self.plus_button = self._create_button("resources/pl_ui_icons/PLUS_BUTTON.png")  # Icon for plus
+        self.minus_button = self._create_button(MINUS_BUTTON_ICON_PATH)  # Icon for minus
+        self.plus_button = self._create_button(PLUS_BUTTON_ICON_PATH)  # Icon for plus
 
         # Value label to display current value of slider
         self.value_label = QLabel(str(self.slider.value()), self)
@@ -76,7 +80,7 @@ class PlSlider(QWidget):
                 margin: -5px 0;
                 border-radius: 12px;
             }
-                      """)
+        """)
 
     def _create_button(self, icon_path):
         """Helper function to create buttons with icons"""

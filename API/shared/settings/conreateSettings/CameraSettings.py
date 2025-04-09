@@ -111,3 +111,15 @@ class CameraSettings(Settings):
         print(f"Epsilon: {epsilon}")
         print(f"Contour Detection: {contourDetection}")
         print(f"Draw Contours: {drawContours}")
+
+    def __str__(self):
+        return (
+            f"CameraSettings:\n"
+            f"  Index: {self.get_camera_index()}\n"
+            f"  Resolution: {self.get_camera_width()}x{self.get_camera_height()}\n"
+            f"  Skip Frames: {self.get_skip_frames()}\n"
+            f"  Threshold: {self.get_threshold()}\n"
+            f"  Epsilon: {self.get_epsilon()}\n"
+            f"  Contour Detection: {self.get_contour_detection()}\n"
+            f"  Draw Contours: {self.get_draw_contours()}"
+        )

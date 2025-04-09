@@ -162,7 +162,9 @@ class RequestHandler:
         """
         try:
             result, message = self.controller.calibrateCamera()
+            print(f"Result: {result} Message: {message}")
             status = Constants.RESPONSE_STATUS_SUCCESS if result else Constants.RESPONSE_STATUS_ERROR
+            print("Status: ",status)
             return Response(status, message=message).to_dict()
         except Exception as e:
             return Response(Constants.RESPONSE_STATUS_ERROR, message=e).to_dict()

@@ -307,14 +307,11 @@ class VisionSystem:
         if flip:
             image = cv2.flip(image, 1)
         arucoDetector = ArucoDetector(arucoDict=ArucoDictionary.DICT_4X4_250)
-        print("Aruco detector created")
         try:
-            cv2.imwrite("aruco.jpg", image)
             arucoCorners, arucoIds = arucoDetector.detectAll(image)
         except Exception as e:
             print(e)
             return None, None
-        print("After detectAll")
         self.drawContours = True
         return arucoCorners, arucoIds, image
 

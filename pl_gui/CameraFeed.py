@@ -5,9 +5,10 @@ import numpy as np
 
 
 class CameraFeed(QWidget):
-    def __init__(self):
+    def __init__(self,updateCallback = None):
         super().__init__()
         self.container = QWidget()
+        self.updateCallback = updateCallback
         self.container.setStyleSheet("background-color: red;")
         self.layout = QVBoxLayout(self.container)
         # align the layout to the bottom
@@ -35,9 +36,9 @@ class CameraFeed(QWidget):
         self.clicked_points = []
         self.transformedPoints = []
 
-        # self.timer = QTimer(self)
-        # self.timer.timeout.connect(self.updateCameraLabel)
-        # self.timer.start(100)
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.updateCameraLabel)
+        self.timer.start(100)
 
     def set_image(self, image):
         if isinstance(image, str):
@@ -65,24 +66,17 @@ class CameraFeed(QWidget):
         self.scene.addItem(pixmap_item)
         self.graphics_view.setScene(self.scene)
 
-    # def updateCameraLabel(self):
-    #     if self.is_feed_paused:
-    #         return
-    #
-    #     try:
-    #         request = Request(req_type=Constants.REQUEST_TYPE_GET,
-    #                           action=Constants.CAMERA_ACTION_GET_LATEST_FRAME,
-    #                           resource=Constants.REQUEST_RESOURCE_CAMERA)
-    #         response = self.mainWindow.sendRequest(request)
-    #         response = Response.from_dict(response)
-    #         if response.status != Constants.RESPONSE_STATUS_SUCCESS:
-    #             print("Error getting latest frame")
-    #             return
-    #         frame = response.data['frame']
-    #         if frame is not None:
-    #             self.set_image(frame)
-    #     except Exception as e:
-    #         print(f"Exception occurred: {e}")
+    def updateCameraLabel(self):
+        if self.is_feed_paused:
+            return
+
+        try:
+            frame = self.updateCallback()
+
+            if frame is not None:
+                self.set_image(frame)
+        except Exception as e:
+            print(f"Exception occurred: {e}")
 
     def pause_feed(self, static_image=None):
         self.is_feed_paused = True

@@ -1,6 +1,10 @@
+import os
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QDateEdit, QGridLayout, QSpacerItem, QSizePolicy
 from PyQt6.QtCore import QDate, Qt
 from PyQt6.QtGui import QPixmap
+
+RESOURCE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources")
+PLACEHOLDER_IMAGE_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "placeholder.jpg")
 
 class GalleryContent(QWidget):
     def __init__(self):
@@ -28,9 +32,9 @@ class GalleryContent(QWidget):
                 label = QLabel(f"Label {row * 3 + col + 1}")
                 label.setStyleSheet("font-size: 14px; color: black; margin-bottom: 5px;")
 
-                # Load image from local SVG file
+                # Load image from local file
                 placeholder = QLabel()
-                pixmap = QPixmap('resources/pl_ui_icons/placeholder.jpg')
+                pixmap = QPixmap(PLACEHOLDER_IMAGE_PATH)
                 scaled_pixmap = pixmap.scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio,
                                               Qt.TransformationMode.SmoothTransformation)
                 placeholder.setPixmap(scaled_pixmap)
@@ -42,7 +46,6 @@ class GalleryContent(QWidget):
                 placeholder_layout.setContentsMargins(0, 0, 0, 0)
                 placeholder_layout.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
                 self.gallery_layout.addLayout(placeholder_layout, row, col)
-
 
         # Add a spacer to push items to the top
         self.layout.addItem(QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding))

@@ -45,3 +45,14 @@ class RobotSettings(Settings):
 
     def set_robot_user(self, value):
         self.set_value(RobotSettingKey.USER.value, value)
+
+    def __str__(self):
+        return (
+            f"RobotSettings:\n"
+            f"  IP Address: {self.get_robot_ip()}\n"
+            f"  Velocity: {self.get_robot_velocity()}\n"
+            f"  Acceleration: {self.get_robot_acceleration()}\n"
+            f"  Tool: {self.get_robot_tool()}\n"
+            f"  User: {self.get_robot_user()}"
+        )
+

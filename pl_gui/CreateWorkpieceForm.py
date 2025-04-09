@@ -1,23 +1,43 @@
 import os
-from PyQt6.QtCore import Qt,QSize
-from PyQt6.QtWidgets import QFrame, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QLineEdit, QPushButton, QWidget
+from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtWidgets import QFrame,QSizePolicy, QSpacerItem,QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QLineEdit, QPushButton, QWidget
 from PyQt6.QtGui import QPixmap, QIcon
-from specific.enums.ToolID import ToolID
-from specific.enums.Gripper import Gripper
-from specific.enums.Program import Program
-from specific.enums.GlueType import GlueType
-from specific.enums.WorkpieceField import WorkpieceField
+from .specific.enums.ToolID import ToolID
+from .specific.enums.Gripper import Gripper
+from .specific.enums.Program import Program
+from .specific.enums.GlueType import GlueType
+from .specific.enums.WorkpieceField import WorkpieceField
 from enum import Enum
 
-
 # Assuming the path to stylesheets
-SETTINGS_STYLESHEET = os.path.join("GUI_NEW", "settings.qss")
+SETTINGS_STYLESHEET = os.path.join( "settings.qss")
 TITLE = "Create Workpiece"
+RESOURCE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources")
 
+# Define paths for icons
+WORKPIECE_ID_ICON_PATH = os.path.join(RESOURCE_DIR, "createWorkpieceIcons", "WOPIECE_ID_ICON_2.png")
+WORKPIECE_NAME_ICON_PATH = os.path.join(RESOURCE_DIR, "createWorkpieceIcons", "WORKPIECE_NAME_ICON.png")
+DESCRIPTION_ICON_PATH = os.path.join(RESOURCE_DIR, "createWorkpieceIcons", "DESCRIPTION_WORKPIECE_BUTTON_SQUARE.png")
+OFFSET_ICON_PATH = os.path.join(RESOURCE_DIR, "createWorkpieceIcons", "OFFSET_VECTOR.png")
+HEIGHT_ICON_PATH = os.path.join(RESOURCE_DIR, "createWorkpieceIcons", "HEIGHT_ICON.png")
+TOOL_ID_ICON_PATH = os.path.join(RESOURCE_DIR, "createWorkpieceIcons", "TOOL_ID_ICON.png")
+GRIPPER_ID_ICON_PATH = os.path.join(RESOURCE_DIR, "createWorkpieceIcons", "GRIPPER_ID_ICON.png")
+GLUE_TYPE_ICON_PATH = os.path.join(RESOURCE_DIR, "createWorkpieceIcons", "GLUE_TYPE_ICON.png")
+PROGRAM_ICON_PATH = os.path.join(RESOURCE_DIR, "createWorkpieceIcons", "PROGRAM_ICON.png")
+MATERIAL_ICON_PATH = os.path.join(RESOURCE_DIR, "createWorkpieceIcons", "MATERIAL_ICON.png")
+ACCEPT_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "createWorkpieceIcons", "ACCEPT_BUTTON.png")
+CANCEL_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "createWorkpieceIcons", "CANCEL_BUTTON.png")
 
 class CreateWorkpieceForm(QWidget):
     def __init__(self, parent=None, callBack=None):
         super().__init__(parent)
+        #
+        # try:
+        #     with open(SETTINGS_STYLESHEET, "r") as file:
+        #         app.setStyleSheet(file.read())
+        # except FileNotFoundError:
+        #     print("Stylesheet file not found. Using default styles.")
+
         self.onSubmitCallBack = callBack
         self.setWindowTitle(TITLE)
         self.setContentsMargins(0, 0, 0, 0)
@@ -35,25 +55,28 @@ class CreateWorkpieceForm(QWidget):
         button_height = 50
 
         # Add widgets dynamically for workpiece form
-        self.add_input_field(WorkpieceField.WORKPIECE_ID, "Enter Workpiece ID", "resources/createWorkpieceIcons/WOPIECE_ID_ICON_2.png")
-        self.add_input_field(WorkpieceField.NAME, "Enter Workpiece Name", "resources/createWorkpieceIcons/WORKPIECE_NAME_ICON.png")
-        self.add_input_field(WorkpieceField.DESCRIPTION, "Enter Description", "resources/createWorkpieceIcons/DESCRIPTION_WORKPIECE_BUTTON_SQUARE.png")
-        self.add_input_field(WorkpieceField.OFFSET, "Enter Offset", "resources/createWorkpieceIcons/OFFSET_VECTOR.png")
-        self.add_input_field(WorkpieceField.HEIGHT, "Enter Workpiece Weight", "resources/createWorkpieceIcons/HEIGHT_ICON.png")
+        self.add_input_field(WorkpieceField.WORKPIECE_ID, "Enter Workpiece ID", WORKPIECE_ID_ICON_PATH)
+        self.add_input_field(WorkpieceField.NAME, "Enter Workpiece Name", WORKPIECE_NAME_ICON_PATH)
+        self.add_input_field(WorkpieceField.DESCRIPTION, "Enter Description", DESCRIPTION_ICON_PATH)
+        self.add_input_field(WorkpieceField.OFFSET, "Enter Offset", OFFSET_ICON_PATH)
+        self.add_input_field(WorkpieceField.HEIGHT, "Enter Workpiece Weight", HEIGHT_ICON_PATH)
 
         # Dropdown fields for Tool ID, Gripper ID, etc.
-        self.add_dropdown_field(WorkpieceField.TOOL_ID, ToolID, "resources/createWorkpieceIcons/TOOL_ID_ICON.png")
-        self.add_dropdown_field(WorkpieceField.GRIPPER_ID, Gripper, "resources/createWorkpieceIcons/GRIPPER_ID_ICON.png")
-        self.add_dropdown_field(WorkpieceField.GLUE_TYPE, GlueType, "resources/createWorkpieceIcons/GLUE_TYPE_ICON.png")
-        self.add_dropdown_field(WorkpieceField.PROGRAM, Program, "resources/createWorkpieceIcons/PROGRAM_ICON.png")
+        self.add_dropdown_field(WorkpieceField.TOOL_ID, ToolID, TOOL_ID_ICON_PATH)
+        self.add_dropdown_field(WorkpieceField.GRIPPER_ID, Gripper, GRIPPER_ID_ICON_PATH)
+        self.add_dropdown_field(WorkpieceField.GLUE_TYPE, GlueType, GLUE_TYPE_ICON_PATH)
+        self.add_dropdown_field(WorkpieceField.PROGRAM, Program, PROGRAM_ICON_PATH)
 
         # Add Material Type dropdown (manual list, replace with enums if needed)
-        self.add_dropdown_field(WorkpieceField.MATERIAL, ["Material1", "Material2", "Material3"], "resources/createWorkpieceIcons/MATERIAL_ICON.png")
+        self.add_dropdown_field(WorkpieceField.MATERIAL, ["Material1", "Material2", "Material3"], MATERIAL_ICON_PATH)
 
+        spacer = QSpacerItem(0, 150, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
+        self.settingsLayout.addItem(spacer)
         # Add button layout (Submit, Cancel)
         button_layout = QHBoxLayout()
-        self.add_button("Accept", "resources/createWorkpieceIcons/ACCEPT_BUTTON.png", button_layout)
-        self.add_button("Cancel", "resources/createWorkpieceIcons/CANCEL_BUTTON.png", button_layout)
+        self.add_button("Accept", ACCEPT_BUTTON_ICON_PATH, button_layout)
+        self.add_button("Cancel", CANCEL_BUTTON_ICON_PATH, button_layout)
+
         self.settingsLayout.addLayout(button_layout)
 
     def add_input_field(self, label, placeholder, icon_path):
@@ -67,8 +90,8 @@ class CreateWorkpieceForm(QWidget):
         layout.addWidget(input_field)
         layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.settingsLayout.addLayout(layout)
-        setattr(self, f"{label.lower().replace(' ', '_')}_edit", input_field)  # Dynamic attribute
-        print(f"{label.lower().replace(' ', '_')}_edit")
+        setattr(self, f"{label.value}_edit", input_field)  # Dynamic attribute
+        print(f"{label.value}_edit")
 
     def add_dropdown_field(self, label, enum_class, icon_path):
         """ Helper method to add a dropdown (QComboBox) with enum items """
@@ -80,7 +103,7 @@ class CreateWorkpieceForm(QWidget):
         # Check if enum_class is an enum type
         if isinstance(enum_class, type) and issubclass(enum_class, Enum):
             # If it's an enum, get the names of the enum values
-            dropdown.addItems([item.name for item in enum_class])
+            dropdown.addItems([item.value for item in enum_class])
         else:
             # If it's a list of strings, add them directly
             dropdown.addItems(enum_class)
@@ -89,8 +112,8 @@ class CreateWorkpieceForm(QWidget):
         layout.addWidget(dropdown)
         layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.settingsLayout.addLayout(layout)
-        setattr(self, f"{label.lower().replace(' ', '_')}_combo", dropdown)  # Dynamic attribute
-        print(f"{label.lower().replace(' ', '_')}_combo")
+        setattr(self, f"{label.value}_combo", dropdown)  # Dynamic attribute
+        print(f"{label.value}_combo")
 
     def add_button(self, button_type, icon_path, layout):
         """ Helper method to add a button with an icon and click functionality """
@@ -112,35 +135,36 @@ class CreateWorkpieceForm(QWidget):
 
         # gett all atributes of the class
         for attr_name in dir(self):
-            # Split by "_"
-            parts = attr_name.split("_")
-            key = "_".join(parts[:-1]).upper()  # Join parts except the last one and convert to uppercase
-            attr_type = parts[-1]  # The last part indicates the type
-            print(f"key = {key}, type = {attr_type}")
-            # FIX ME !!!
+            if attr_name.endswith("combo") or attr_name.endswith("edit"):
+                # Split by "_"
+                parts = attr_name.split("_")
+                key = "_".join(parts[:-1]) # Join parts except the last one and convert to uppercase
+                attr_type = parts[-1]  # The last part indicates the type
+                print(f"key = {key}, type = {attr_type}")
+
 
         # """ Collect form data and submit it """
-        # data = {
-        #     WorkpieceField.WORKPIECE_ID: self.workpiece_id_edit.text().strip(),
-        #     WorkpieceField.NAME: self.workpiece_name_edit.text().strip(),
-        #     WorkpieceField.DESCRIPTION: self.description_edit.text().strip(),
-        #     WorkpieceField.TOOL_ID: self.tool_id_combo.currentText().strip(),
-        #     WorkpieceField.GRIPPER_ID: self.gripper_id_combo.currentText().strip(),
-        #     WorkpieceField.GLUE_TYPE: self.glue_type_combo.currentText().strip(),
-        #     WorkpieceField.PROGRAM: self.program_combo.currentText().strip(),
-        #     WorkpieceField.MATERIAL: self.material_type_combo.currentText().strip(),
-        #     WorkpieceField.OFFSET: self.offset_edit.text().strip(),
-        #     WorkpieceField.HEIGHT: self.workpiece_height_edit.text().strip()
-        # }
-        # print("Collected Data:", data)
-        # if self.onSubmitCallBack:
-        #     self.onSubmitCallBack()
-        # self.close()
+        data = {
+            WorkpieceField.WORKPIECE_ID.value: getattr(self,WorkpieceField.WORKPIECE_ID.value+"_edit").text(),
+            WorkpieceField.NAME.value: getattr(self,WorkpieceField.NAME.value+"_edit").text(),
+            WorkpieceField.DESCRIPTION.value: getattr(self,WorkpieceField.DESCRIPTION.value+"_edit").text(),
+            WorkpieceField.TOOL_ID.value: getattr(self,WorkpieceField.TOOL_ID.value+"_combo").currentText(),
+            WorkpieceField.GRIPPER_ID.value: getattr(self,WorkpieceField.GRIPPER_ID.value+"_combo").currentText(),
+            WorkpieceField.GLUE_TYPE.value: getattr(self,WorkpieceField.GLUE_TYPE.value+"_combo").currentText(),
+            WorkpieceField.PROGRAM.value: getattr(self,WorkpieceField.PROGRAM.value+"_combo").currentText(),
+            WorkpieceField.MATERIAL.value: getattr(self,WorkpieceField.MATERIAL.value+"_combo").currentText(),
+            WorkpieceField.OFFSET.value: getattr(self,WorkpieceField.OFFSET.value+"_edit").text(),
+            WorkpieceField.HEIGHT.value: getattr(self,WorkpieceField.HEIGHT.value+"_edit").text()
+        }
+        print("Collected Data:", data)
+        if self.onSubmitCallBack:
+            self.onSubmitCallBack(data)
+        self.close()
 
     def onCancel(self):
         """ Cancel the operation and close the form """
-        if self.onSubmitCallBack:
-            self.onSubmitCallBack()
+        # if self.onSubmitCallBack:
+        #     self.onSubmitCallBack()
         self.close()
 
     def create_icon_label(self, path, size=24):
@@ -172,6 +196,8 @@ class CreateWorkpieceForm(QWidget):
             button_icon_size = QSize(int(newWidth * 0.05), int(newWidth * 0.05))
             self.cancel_button.setIconSize(button_icon_size)
 
+    def setHeigh(self,value):
+        getattr(self,WorkpieceField.HEIGHT.value+"_edit").setText(str(value))
 
 if __name__ == "__main__":
     import sys

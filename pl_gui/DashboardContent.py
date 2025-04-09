@@ -1,18 +1,37 @@
-from PyQt6.QtCore import QSize, Qt
-from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QStackedWidget, QApplication,QFrame
+import os
 
-from ButtonConfig import ButtonConfig
-from CameraFeed import CameraFeed
-from Sidebar import Sidebar
-from CreateWorkpieceForm import CreateWorkpieceForm
-from ManualControlWidget import ManualControlWidget
+from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QStackedWidget, QApplication, QFrame
+
+from .ButtonConfig import ButtonConfig
+from .CameraFeed import CameraFeed
+from .Sidebar import Sidebar
+from .CreateWorkpieceForm import CreateWorkpieceForm
+from .ManualControlWidget import ManualControlWidget
+from .specific.enums.WorkpieceField import WorkpieceField
+
+RESOURCE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources")
+RUN_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "RUN_BUTTON.png")
+RUN_BUTTON_PRESSED_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "PRESSED_RUN_BUTTON.png")
+STOP_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "STOP_BUTTON.png")
+STOP_BUTTON_PRESSED_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "PRESSED_STOP_BUTTON.png")
+CREATE_WORKPIECE_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "CREATE_WORKPIECE_BUTTON_SQUARE.png")
+CREATE_WORKPIECE_PRESSED_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons",
+                                                         "PRESSED_CREATE_WORKPIECE_BUTTON_SQUARE.png")
+CALIRATION_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "CALIBRATION_BUTTON_SQUARE.png")
+CALIRATION__PRESSED_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons",
+                                                    "PRESSED_CALIBRATION_BUTTON_SQUARE.png")
+ROBOT_SETTINGS_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "ROBOT_SETTINGS_BUTTON_SQUARE.png")
+ROBOT_SETTINGS_PRESSED_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons",
+                                                       "PRESSSED_ROBOT_SETTINGS_BUTTON_SQUARE.png")
 
 
 class MainContent(QWidget):
-    def __init__(self, screenWidth=1280):
+    def __init__(self, screenWidth=1280, controller=None):
         print("MainContent init started")
         super().__init__()
         self.screenWidth = screenWidth
+        self.controller = controller
         self.setContentsMargins(0, 0, 0, 0)
 
         # Main layout for the content
@@ -51,7 +70,7 @@ class MainContent(QWidget):
         # Add the stacked widget to the main layout
         self.main_layout.addWidget(self.stacked_widget, 1)
 
-        self.cameraFeed = CameraFeed()
+        self.cameraFeed = CameraFeed(updateCallback=self.controller.updateCameraFeed)
         self.cameraFeedLayout = QVBoxLayout()
         self.content_layout.addWidget(self.cameraFeed)
         self.createWorkpieceForm = None
@@ -61,27 +80,27 @@ class MainContent(QWidget):
     def create_side_menu(self):
         """Create a side menu inside the main content area."""
 
-        self.startButtoncConfig = ButtonConfig("resources/pl_ui_icons/RUN_BUTTON.png",
-                                               "resources/pl_ui_icons/PRESSED_RUN_BUTTON.png",
+        self.startButtoncConfig = ButtonConfig(RUN_BUTTON_ICON_PATH,
+                                               RUN_BUTTON_PRESSED_ICON_PATH,
                                                "Home",
                                                self.onStartButton)
-        self.stopButtonConfig = ButtonConfig("resources/pl_ui_icons/STOP_BUTTON.png",
-                                             "resources/pl_ui_icons/PRESSED_STOP_BUTTON.png",
+        self.stopButtonConfig = ButtonConfig(STOP_BUTTON_ICON_PATH,
+                                             STOP_BUTTON_PRESSED_ICON_PATH,
                                              "Settings",
                                              self.onStopButton)
 
-        self.createWorkpieceConfig = ButtonConfig("resources/pl_ui_icons/CREATE_WORKPIECE_BUTTON_SQUARE.png",
-                                                  "resources/pl_ui_icons/PRESSED_CREATE_WORKPIECE_BUTTON_SQUARE.png",
+        self.createWorkpieceConfig = ButtonConfig(CREATE_WORKPIECE_BUTTON_ICON_PATH,
+                                                  CREATE_WORKPIECE_PRESSED_BUTTON_ICON_PATH,
                                                   "createWorkpiece",
                                                   self.onCreateWorkpiece)
 
-        self.calibrationButtonConfig = ButtonConfig("resources/pl_ui_icons/CALIBRATION_BUTTON_SQUARE.png",
-                                                    "resources/pl_ui_icons/PRESSED_CALIBRATION_BUTTON_SQUARE.png",
+        self.calibrationButtonConfig = ButtonConfig(CALIRATION_BUTTON_ICON_PATH,
+                                                    CALIRATION__PRESSED_BUTTON_ICON_PATH,
                                                     "calibrate",
-                                                    self.onButton4Clicked)
+                                                    self.onCalibrate)
 
-        self.manualMoveButtonConfig = ButtonConfig("resources/pl_ui_icons/ROBOT_SETTINGS_BUTTON_SQUARE.png",
-                                                   "resources/pl_ui_icons/PRESSSED_ROBOT_SETTINGS_BUTTON_SQUARE.png",
+        self.manualMoveButtonConfig = ButtonConfig(ROBOT_SETTINGS_BUTTON_ICON_PATH,
+                                                   ROBOT_SETTINGS_PRESSED_BUTTON_ICON_PATH,
                                                    "manualMove",
                                                    self.onManualMoveButton)
 
@@ -95,12 +114,20 @@ class MainContent(QWidget):
 
     def onStartButton(self):
         print("Start clicked")
+        self.controller.sendRequest("start")
 
     def onStopButton(self):
         print("Stoped clicked")
+        self.controller.sendRequest("Stoped")
 
-    def onButton4Clicked(self):
-        print("Button 4 clicked")
+    def onCalibrate(self):
+        print("Calibrate button clicked")
+        result, message = self.controller.sendRequest("calibrate")
+
+        if result:
+            self.onManualMoveButton()
+            self.manualMoveContent.savePointButton.show()
+            self.manualMoveContent.onSaveCallback = self.controller.saveRobotCalibrationPoint
 
     def onManualMoveButton(self):
         if self.manualMoveContent is None:
@@ -109,7 +136,7 @@ class MainContent(QWidget):
                 self.createWorkpieceForm.close()
                 self.createWorkpieceForm = None
 
-            self.manualMoveContent = ManualControlWidget(self,self.manualMoveCallbacl)
+            self.manualMoveContent = ManualControlWidget(self, self.manualMoveCallback,self.controller.sendJogRequest)
             self.content_layout.addWidget(self.manualMoveContent)
         else:
             self.manualMoveContent.close()
@@ -122,19 +149,31 @@ class MainContent(QWidget):
                 self.manualMoveContent.close()
                 self.manualMoveContent = None
 
-            self.createWorkpieceForm = CreateWorkpieceForm(self,self.onCreateWorkpieceSubmit)
+            result, data = self.controller.sendRequest("createworkpiece")
+            if not result:
+                return
+            frame = data['image']
+            self.cameraFeed.pause_feed(static_image=frame)
+
+            self.createWorkpieceForm = CreateWorkpieceForm(self, self.onCreateWorkpieceSubmit)
+            self.createWorkpieceForm.setHeigh(data[WorkpieceField.HEIGHT.value])
             self.content_layout.addWidget(self.createWorkpieceForm)
         else:
             self.createWorkpieceForm.close()
             self.createWorkpieceForm = None
 
-    def manualMoveCallbacl(self):
+    def manualMoveCallback(self):
         self.manualMoveContent = None
 
-    def onCreateWorkpieceSubmit(self):
+    def onCreateWorkpieceSubmit(self, data):
         print("Unchecking buttons")
         self.side_menu.uncheck_all_buttons()
+
+        sprayPattern = []
+        data[WorkpieceField.SPRAY_PATTERN.value] = sprayPattern
         self.createWorkpieceForm = None
+        self.cameraFeed.resume_feed()
+        self.controller.saveWorkpiece(data)
 
     def resizeEvent(self, event):
         """Resize content and side menu dynamically."""

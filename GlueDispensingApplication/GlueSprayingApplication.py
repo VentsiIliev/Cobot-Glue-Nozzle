@@ -184,8 +184,10 @@ class GlueSprayingApplication:
         message = ""
         maxAttempts = 30
         while maxAttempts > 0:
+            print("Aruco Attempt: ",maxAttempts)
             arucoCorners, arucoIds, image = self.visionService.detectArucoMarkers()
-
+            print("ids: ",arucoIds)
+            # cv2.imwrite(f"aruco{maxAttempts}.png", image)
             if arucoIds is not None and len(arucoIds) >= 3:
                 break  # Stop retrying if enough markers are detected
             maxAttempts -= 1
@@ -287,6 +289,7 @@ class GlueSprayingApplication:
         message = "Workpiece created successfully"
         #convert new frame to rgb
         newFrame = cv2.cvtColor(newFrame, cv2.COLOR_BGR2RGB)
+        self.robotService.moveToStartPosition()
         return True, estimatedHeight, contourArea, contour, scaleFactor, newFrame, message
 
     def updateToolChangerStation(self):

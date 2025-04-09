@@ -1,4 +1,5 @@
 import sys
+import os
 
 from PyQt6.QtCore import QSize
 from PyQt6.QtWidgets import (
@@ -6,15 +7,24 @@ from PyQt6.QtWidgets import (
 )
 from pl_gui.SettingsContent import SettingsContent
 
-from ButtonConfig import ButtonConfig
-from Header import Header
-from Sidebar import Sidebar
+from .ButtonConfig import ButtonConfig
+from .Header import Header
+from .Sidebar import Sidebar
 from pl_gui.GalleryContent import GalleryContent
 
-
+RESOURCE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources")
+DASHBOARD_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "DASHBOARD_BUTTON_SQUARE.png")
+SETTINGS_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "SETTINGS_BUTTON.png")
+SETTINGS_PRESSED_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "PRESSED_SETTINGS_BUTTON.png")
+GALLERY_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "LIBRARY_BUTTON_SQARE.png")
+RUN_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "RUN_BUTTON.png")
+RUN_PRESSED_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "PRESSED_RUN_BUTTON.png")
+LOGIN_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "LOGIN_BUTTON_SQUARE.png")
+LOGIN_PRESSED_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "PRESSED_RUN_BUTTON.png")
 class MainWindow(QMainWindow):
-    def __init__(self,dashboardWidget=None):
+    def __init__(self, dashboardWidget=None,controller=None):
         print("MainWindow init started")
+        self.controller=controller
         super().__init__()
 
         if dashboardWidget is None:
@@ -22,7 +32,6 @@ class MainWindow(QMainWindow):
             self.main_content = QWidget()
         else:
             self.main_content = dashboardWidget
-
 
         # self.setStyleSheet("background-color: #f0f0f0;")  # A light gray background instead of transparent
         self.setStyleSheet("background-color: white;")  # A light gray background instead of transparent
@@ -45,29 +54,35 @@ class MainWindow(QMainWindow):
         self.header = Header(self.screen_width, self.screen_height, self.toggle_menu)
         self.galleryContent = GalleryContent()
         # Sidebar Section
-        dashboardButtonConfig = ButtonConfig("resources/pl_ui_icons/DASHBOARD_BUTTON_SQUARE.png",
-                                             "resources/pl_ui_icons/DASHBOARD_BUTTON_SQUARE.png",
-                                             "Home",
-                                             self.show_home)
-        settingsButtonConfig = ButtonConfig("resources/pl_ui_icons/SETTINGS_BUTTON.png",
-                                            "resources/pl_ui_icons/PRESSED_SETTINGS_BUTTON.png",
-                                            "Settings",
-                                            self.show_settings)
+        dashboardButtonConfig = ButtonConfig(
+            DASHBOARD_BUTTON_ICON_PATH,
+            DASHBOARD_BUTTON_ICON_PATH,
+            "Home",
+            self.show_home
+        )
+        settingsButtonConfig = ButtonConfig(
+            SETTINGS_BUTTON_ICON_PATH,
+            SETTINGS_PRESSED_BUTTON_ICON_PATH,
+            "Settings",
+            self.show_settings)
 
-        galleryButtonConfig = ButtonConfig("resources/pl_ui_icons/LIBRARY_BUTTON_SQARE.png",
-                                           "resources/pl_ui_icons/LIBRARY_BUTTON_SQARE.png",
-                                           "Help",
-                                           self.onGalleryButton)
+        galleryButtonConfig = ButtonConfig(
+            GALLERY_BUTTON_ICON_PATH,
+            GALLERY_BUTTON_ICON_PATH,
+            "Help",
+            self.onGalleryButton)
 
-        runButtonConfig = ButtonConfig("resources/pl_ui_icons/RUN_BUTTON.png",
-                                       "resources/pl_ui_icons/PRESSED_RUN_BUTTON.png",
-                                       "Help",
-                                       self.show_help)
+        runButtonConfig = ButtonConfig(
+            RUN_BUTTON_ICON_PATH,
+            RUN_PRESSED_BUTTON_ICON_PATH,
+            "Help",
+            self.show_help)
 
-        loginButtonConfig = ButtonConfig("resources/pl_ui_icons/LOGIN_BUTTON_SQUARE.png",
-                                         "resources/pl_ui_icons/PRESSED_RUN_BUTTON.png",
-                                         "Login",
-                                         self.show_login)
+        loginButtonConfig = ButtonConfig(
+            LOGIN_BUTTON_ICON_PATH,
+            LOGIN_PRESSED_BUTTON_ICON_PATH,
+            "Login",
+            self.show_login)
         self.sidebar = Sidebar(self.screen_width,
                                [dashboardButtonConfig, settingsButtonConfig, galleryButtonConfig],
                                [runButtonConfig, loginButtonConfig])
@@ -125,11 +140,12 @@ class MainWindow(QMainWindow):
         """Display Gallery Content"""
         print("Gallery Button Clicked")
         self.stacked_widget.setCurrentWidget(self.galleryContent)
+        self.controller.sendRequest("Open Gallery")
 
     def show_home(self):
         """Show Main Content (Replace QWidget with MainContent)"""
         if isinstance(self.main_content, QWidget):  # Check if it’s the initial QWidget
-            from DashboardContent import MainContent  # Import only when needed
+            from .DashboardContent import MainContent  # Import only when needed
             self.main_content = MainContent(screenWidth=self.screen_width)  # Replace with MainContent
             self.stacked_widget.addWidget(self.main_content)  # Add new widget to stacked widget
             self.stacked_widget.setCurrentWidget(self.main_content)  # Set it to current widget
@@ -141,16 +157,21 @@ class MainWindow(QMainWindow):
     def show_settings(self):
         """Show Settings Content with Tabs"""
         self.stacked_widget.setCurrentWidget(self.settings_content)
-
+        cameraSettings, robotSettings = self.controller.sendRequest("settings/get")
+        self.settings_content.updateCameraSettings(cameraSettings)
+        self.settings_content.updateRobotSettings(robotSettings)
+        print(cameraSettings)
+        print(robotSettings)
     def show_help(self):
         """Display Help Content"""
-        self.main_content.main_label.setText("Help Section: How can we assist you?")
         self.stacked_widget.setCurrentWidget(self.main_content)
         self.settings_content.setVisible(False)
+        self.controller.sendRequest("show_help")
 
     def show_login(self):
         """Display Login Content"""
         print("Login Section: Enter your credentials.")
+        self.controller.sendRequest("show_login")
         # self.main_content.main_label.setText("Login Section: Enter your credentials.")
         # self.stacked_widget.setCurrentWidget(self.main_content)
         # self.settings_content.setVisible(False)
@@ -172,10 +193,5 @@ class MainWindow(QMainWindow):
 
         super().resizeEvent(event)
 
-
 # Run the application
 # app = QApplication(sys.argv)
-
-
-
-

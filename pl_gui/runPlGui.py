@@ -1,43 +1,48 @@
 import sys
 from PyQt6.QtWidgets import QApplication
 
+from GlueDispensingApplication.DomesticRequestSender import DomesticRequestSender
+from GlueDispensingApplication.RequestHandler import RequestHandler
+
 from pl_gui.MainWindow import MainWindow
 from pl_gui.DashboardContent import MainContent
 #
-from LoginWindow import LoginWindow
+from .LoginWindow import LoginWindow
+import os
+DEFAULT_SCREEN_WIDTH = 1280
+DEFAULT_SCREEN_HEIGHT = 720
+WINDOW_TITLE = "PL Project"
+SETTINGS_STYLESHEET = os.path.join("pl_gui","styles.qss")
+class PlGui:
 
-class PlGUi:
-    def __init__(self, controller=None):  # <-- FIXED here
+    def __init__(self, controller=None):
         self.controller = controller
-        self.requires_login = True
+        self.requires_login = False
 
     def start(self):
-        print("In start")
         app = QApplication(sys.argv)
         # Load stylesheet from file
         try:
-            with open("styles.qss", "r") as file:
+            with open(SETTINGS_STYLESHEET, "r") as file:
                 app.setStyleSheet(file.read())
+                print("Stylesheets applied")
         except FileNotFoundError:
             print("Stylesheet file not found. Using default styles.")
 
 
-        dashboardContent = MainContent(screenWidth=1280)
+        dashboardContent = MainContent(screenWidth=DEFAULT_SCREEN_WIDTH,controller=self.controller)
 
-        window = MainWindow( dashboardContent)
+        window = MainWindow(dashboardContent,self.controller)
 
-        window.setWindowTitle("PL Project")
-        window.setMinimumSize(1280, 720)
-        window.setGeometry(100, 100, 1280, 720)
+        window.setWindowTitle(WINDOW_TITLE)
+        window.setMinimumSize(DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT)
+        window.setGeometry(100, 100, DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT)
         window.setContentsMargins(0, 0, 0, 0)
 
         dashboardContent.screenWidth = window.screen_width
         window.main_content = dashboardContent
-        print("before window.show")
         window.show()
-        print("Login needed: ", self.requires_login)
         if self.requires_login:
-            print("Login needed")
             window.setEnabled(False)
             login = LoginWindow()
             if login.exec():  # This now blocks until login accepted/rejected
@@ -51,5 +56,5 @@ class PlGUi:
 
 
 if __name__ == "__main__":
-    gui = PlGUi()
+    gui = PlGui()
     gui.start()
