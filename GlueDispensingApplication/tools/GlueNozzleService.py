@@ -1,30 +1,20 @@
 import time
 import platform
 import minimalmodbus
-import serial.tools.list_ports
-
+import subprocess
+import re  # Import regex module
 
 from GlueDispensingApplication.modbusCommunication.ModbusClientSingleton import ModbusClientSingleton
 
 class GlueNozzleService:
     def __init__(self):
         self.slave = 13
-
-        # # Determine OS and set the correct serial port
-        # if platform.system() == "Windows":
-        #     self.port = "COM5"  # Adjust as necessary
-        # else:  # Assuming Linux
-        #     self.port = "/dev/ttyUSB1"  # Adjust as necessary
-        #     # self.port = "ttyUSB1"  # Adjust as necessary
-
         self.port = self.get_modbus_port()
 
         print("Slave:", self.slave)
         print("Port:", self.port)
         self.modbusClient = ModbusClientSingleton.get_instance(slave=self.slave, port=self.port, baudrate=115200,
                                                                bytesize=8, stopbits=1, timeout=0.05)
-
-        # self.modbusClient = ModbusClient(self.slave, 'COM5', 115200, 8, 1, 0.05)
 
         if self.slave is None:
             raise Exception("Modbus slave not found!")
@@ -47,28 +37,33 @@ class GlueNozzleService:
         print("Stopping glue dispensing")
         self.modbusClient.writeRegister(100, 0)
         print("Stopped glue dispensing")
-        # self.modbusClient.writeRegister(101, 4)
 
     def get_modbus_port(self):
         if platform.system() == "Windows":
             return "COM5"  # Adjust as necessary
         else:  # Assuming Linux
-            # Search for USB serial ports
-            ports = self.find_usb_ports()
-            if ports:
-                # Check for the one that matches your Modbus RS485 adapter
-                return ports[0]
+            port = self.find_ch341_uart_port()
+            if port:
+                return port
             else:
-                raise Exception("No Modbus RS485 serial ports found!")
+                raise Exception("No Modbus 485 serial ports found!")
 
-    def find_usb_ports(self):
-        # List all available USB serial ports
-        ports = []
-        for port in serial.tools.list_ports.comports():
-            if 'USB' in port.description:  # Filter by USB description
-                print(f"Found port: {port.device} - {port.description}")
-                # You can add more specific filtering based on your device
-                # For example, check if the device description matches a known RS485 device
-                if "RS485" in port.description or "Modbus" in port.description:
-                    ports.append(port.device)
-        return ports
+    def find_ch341_uart_port(self):
+        # Prompt for password and run dmesg with sudo
+        password = "123"  # Set the password here
+        result = subprocess.run(
+            ["sudo", "-S", "dmesg"], input=password + "\n", stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+        )
+        print(result)
+        # Check for 'ch341-uart' using regex to extract the ttyUSB device (e.g., ttyUSB0, ttyUSB1)
+        pattern = r'ch341-uart.*?ttyUSB(\d+)'  # Regex to match 'ch341-uart' and extract 'ttyUSB0', 'ttyUSB1', etc.
+        matches = re.findall(pattern, result.stdout)
+
+        if matches:
+            # If a match is found, return the full tty device path (e.g., /dev/ttyUSB0)
+            return f"/dev/ttyUSB{matches[0]}"
+        else:
+            return None
+
+if __name__ == "__main__":
+    service = GlueNozzleService()
