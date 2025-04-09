@@ -49,21 +49,30 @@ class GlueNozzleService:
                 raise Exception("No Modbus 485 serial ports found!")
 
     def find_ch341_uart_port(self):
-        # Prompt for password and run dmesg with sudo
+        # Run dmesg with sudo to fetch system log
         password = "123"  # Set the password here
         result = subprocess.run(
             ["sudo", "-S", "dmesg"], input=password + "\n", stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
         )
-        print(result)
-        # Check for 'ch341-uart' using regex to extract the ttyUSB device (e.g., ttyUSB0, ttyUSB1)
-        pattern = r'ch341-uart.*?ttyUSB(\d+)'  # Regex to match 'ch341-uart' and extract 'ttyUSB0', 'ttyUSB1', etc.
-        matches = re.findall(pattern, result.stdout)
 
-        if matches:
-            # If a match is found, return the full tty device path (e.g., /dev/ttyUSB0)
-            return f"/dev/ttyUSB{matches[0]}"
-        else:
-            return None
+        # Check for 'ch341-uart' using regex to extract the ttyUSB device (e.g., ttyUSB0, ttyUSB1, etc.)
+        pattern = r'ch341-uart.*?ttyUSB(\d+)'  # Regex to match 'ch341-uart' and extract 'ttyUSB0', 'ttyUSB1', etc.
+
+        # Reverse the output to get the most recent device first
+        lines = result.stdout.splitlines()
+        lines.reverse()  # Reverse the order of lines to check the most recent logs first
+
+        for line in lines:
+            if "now attached" in line:  # Check if "now attached" is in the line
+                if re.search(pattern, line):  # If a match for the pattern is found
+                    # Extract the ttyUSB device from the matched line
+                    match = re.search(pattern, line)
+                    if match:
+                        device = f"/dev/ttyUSB{match.group(1)}"  # Extract the number from the regex match
+                        return device
+
+        return None  # If no match is found
+
 
 if __name__ == "__main__":
     service = GlueNozzleService()
