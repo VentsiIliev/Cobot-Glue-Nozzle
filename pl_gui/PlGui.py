@@ -55,6 +55,6 @@ class PlGui:
         sys.exit(app.exec())  # Only call this once after everything is set up
 
 
-if __name__ == "__main__":
-    gui = PlGui()
-    gui.start()
+# if __name__ == "__main__":
+#     gui = PlGui()
+#     gui.start()

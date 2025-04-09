@@ -70,6 +70,7 @@ class MainContent(QWidget):
         # Add the stacked widget to the main layout
         self.main_layout.addWidget(self.stacked_widget, 1)
 
+
         self.cameraFeed = CameraFeed(updateCallback=self.controller.updateCameraFeed)
         self.cameraFeedLayout = QVBoxLayout()
         self.content_layout.addWidget(self.cameraFeed)

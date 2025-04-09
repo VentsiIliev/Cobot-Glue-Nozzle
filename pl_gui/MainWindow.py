@@ -146,7 +146,7 @@ class MainWindow(QMainWindow):
         """Show Main Content (Replace QWidget with MainContent)"""
         if isinstance(self.main_content, QWidget):  # Check if it’s the initial QWidget
             from .DashboardContent import MainContent  # Import only when needed
-            self.main_content = MainContent(screenWidth=self.screen_width)  # Replace with MainContent
+            self.main_content = MainContent(screenWidth=self.screen_width,controller=self.controller)  # Replace with MainContent
             self.stacked_widget.addWidget(self.main_content)  # Add new widget to stacked widget
             self.stacked_widget.setCurrentWidget(self.main_content)  # Set it to current widget
         else:

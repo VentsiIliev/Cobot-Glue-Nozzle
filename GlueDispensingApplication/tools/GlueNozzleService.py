@@ -2,7 +2,7 @@ import time
 import platform
 import minimalmodbus
 import subprocess
-import re  # Import regex module
+import re
 
 from GlueDispensingApplication.modbusCommunication.ModbusClientSingleton import ModbusClientSingleton
 

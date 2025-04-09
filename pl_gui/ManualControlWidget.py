@@ -179,9 +179,9 @@ class ManualControlWidget(QWidget):
     def resizeEvent(self, event):
         width = self.width()
         height = self.height()
-        icon_size = min(width, height) // 8
+        icon_size = min(width, height) // 6
         if width > 500:
-            icon_size = min(width, height) // 8
+            icon_size = min(width, height) // 6
 
         for btn in [self.btn_z_plus, self.btn_z_minus, self.btn_x_minus, self.btn_x_plus, self.btn_y_plus, self.btn_y_minus]:
             btn.setIconSize(QSize(icon_size, icon_size))

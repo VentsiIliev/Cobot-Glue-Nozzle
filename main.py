@@ -20,7 +20,7 @@ newGui = True
 testRobot = False
 if newGui:
     from GUI_NEW.GUI_NEW import GUI_NEW
-    from pl_gui.runPlGui import PlGui
+    from pl_gui.PlGui import PlGui
 else:
     import tkinter as tk
     from GUI.GUI import GUI
