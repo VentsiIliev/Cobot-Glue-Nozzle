@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class ToolID(Enum):
+    Tool0 = "0"
     Tool1 = "1"
     Tool2 = "2"
     Tool3 = "3"

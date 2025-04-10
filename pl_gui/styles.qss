@@ -56,3 +56,21 @@ QPushButton {
     background: transparent;
     padding: 0px;
 }
+
+QDateEdit, QDateEdit::drop-down {
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+QDateEdit, QDateEdit::drop-down {
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+ QDateEdit::drop-down {
+    background-color: #905BA9;  /* Change the drop-down button color if needed */
+    color: white
+}
+

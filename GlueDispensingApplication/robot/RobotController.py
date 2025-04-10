@@ -57,6 +57,7 @@ class RobotController():
                                     message=message,
                                     data={"pointsCount":pointsCount})
                 return response.to_dict()
+
             else:
                 x,y,z=self.robotCalibrationService.getNextRobotPoint()
                 nextPosition = [x,y,150,180,0,0]
@@ -69,6 +70,9 @@ class RobotController():
                                 data={"pointsCount":pointsCount})
 
             return responce.to_dict()
-
+        elif action == Constants.HOME_ROBOT:
+            return self.robotService.moveToStartPosition()
+        elif action == Constants.ACTION_STOP:
+            self.robotService.stopRobot();
         else:
             raise ValueError(f"Invalid request action: {action}")

@@ -7,6 +7,7 @@ REQUEST_TYPE_EXECUTE = "EXECUTE"
 
 ACTION_START = "start"
 ACTION_STOP = "stop"
+HOME_ROBOT= "home"
 ACTION_RESTART = "restart"
 ACTION_CALIBRATE = "calibrate"
 ACTION_GET_SETTINGS = "getSettings"

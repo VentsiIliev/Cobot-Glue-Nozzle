@@ -6,10 +6,10 @@ class ToolChanger():
     def __init__(self):
         # Initialize slots with position and occupancy status (0: empty, 1: occupied)
         self.slots = {
-            10: {"position": [-400.71, 493.774, 126.625, 180, 0, 9.701], "occupied": self.STATUS_OCCUPIED,"reservedFor": Gripper.SINGLE},
+            10: {"position": [-405.203,549.522, 130, 180, 0, 0], "occupied": self.STATUS_OCCUPIED,"reservedFor": Gripper.SINGLE},
             11: {"position": [-403.73, 564.799, 126.4, 180, 0, 5], "occupied": self.STATUS_AVAILABLE,"reservedFor": Gripper.MOCK},
             12: {"position": [-406.73, 638.915, 129.1, 180, 0, 5], "occupied": self.STATUS_AVAILABLE,"reservedFor": Gripper.MOCK2},
-            13: {"position": [-409.73, 713.674, 129.95, 180, 0, 5], "occupied": self.STATUS_AVAILABLE,"reservedFor": Gripper.MOCK3},
+            13: {"position": [-416.544, 775.733, 135, 180, 0, 2], "occupied": self.STATUS_AVAILABLE,"reservedFor": Gripper.MOCK3},
             14: {"position": [-412.905, 792.998, 128.469, 180, 0, 8.5], "occupied": self.STATUS_OCCUPIED,"reservedFor": Gripper.DOUBLE},
         }
 

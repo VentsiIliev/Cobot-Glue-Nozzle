@@ -95,10 +95,12 @@ class RobotWrapper:
         direction = direction.value
         return self.robot.StartJOG(ref=4,nb=axis,dir=direction,vel=vel,acc=acc,max_dis=step)
 
-    def stopMotion():
-        """Terminate motion, use of terminate motion requires motion instruction to be non-blocking
-        :return: Error Code Success-0 , Failure- errcode"""
+    import http.client  # Needed to catch the specific exception
+
+    def stopMotion(self):
+        print("Stoping Robot")
         return self.robot.StopMotion()
 
     def resetAllErrors(self):
+        print("Reseting Errors")
         return self.robot.ResetAllError()

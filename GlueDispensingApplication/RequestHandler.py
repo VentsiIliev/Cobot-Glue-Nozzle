@@ -140,21 +140,33 @@ class RequestHandler:
         handler = action_handlers.get(request.action)
         return handler() if handler else Response(Constants.RESPONSE_STATUS_ERROR, message="Invalid action").to_dict()
 
+
     def _handleStart(self):
         """
         Handles the Start action.
         """
-        try:
 
-            result,message = self.controller.start()
-            print("Result: ", result)
-            if not result:
-                return Response(Constants.RESPONSE_STATUS_ERROR, message=message).to_dict()
-            else:
-                return Response(Constants.RESPONSE_STATUS_SUCCESS, message=message).to_dict()
+        import threading
+        def start_in_thread():
+            try:
+                result, message = self.controller.start()
+                print("Result: ", result)
+                if not result:
+                    print("Error: ", message)
+                else:
+                    print("Success: ", message)
+            except Exception as e:
+                traceback.print_exc()
+                print(f"Error starting in thread: {e}")
+
+        try:
+            thread = threading.Thread(target=start_in_thread)
+            thread.start()
+            return Response(Constants.RESPONSE_STATUS_SUCCESS,
+                            message="Start action initiated in a new thread.").to_dict()
         except Exception as e:
             traceback.print_exc()
-            return Response(Constants.RESPONSE_STATUS_ERROR, message=f"Error starting: {e}").to_dict()
+            return Response(Constants.RESPONSE_STATUS_ERROR, message=f"Error starting thread: {e}").to_dict()
 
     def _handleCameraCalibration(self):
         """

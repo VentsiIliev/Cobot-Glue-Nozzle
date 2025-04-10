@@ -24,7 +24,8 @@ CALIRATION__PRESSED_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons",
 ROBOT_SETTINGS_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "ROBOT_SETTINGS_BUTTON_SQUARE.png")
 ROBOT_SETTINGS_PRESSED_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons",
                                                        "PRESSSED_ROBOT_SETTINGS_BUTTON_SQUARE.png")
-
+HOME_ROBOT_BUTTON_ICON_PATH =  os.path.join(RESOURCE_DIR, "pl_ui_icons",
+                                                       "HOME_MACHINE_BUTTON.png")
 
 class MainContent(QWidget):
     def __init__(self, screenWidth=1280, controller=None):
@@ -105,8 +106,14 @@ class MainContent(QWidget):
                                                    "manualMove",
                                                    self.onManualMoveButton)
 
+        self.homeRobotButtonConfig = ButtonConfig(HOME_ROBOT_BUTTON_ICON_PATH,
+                                                   HOME_ROBOT_BUTTON_ICON_PATH,
+                                                   "home robot",
+                                                   self.onHomeRobot)
+
+
         self.buttons = [self.startButtoncConfig, self.stopButtonConfig, self.createWorkpieceConfig,
-                        self.calibrationButtonConfig, self.manualMoveButtonConfig]
+                        self.calibrationButtonConfig, self.manualMoveButtonConfig,self.homeRobotButtonConfig]
 
         side_menu = Sidebar(self.screenWidth, self.buttons)
         side_menu.setStyleSheet("background-color: white; padding: 0px;")
@@ -119,7 +126,7 @@ class MainContent(QWidget):
 
     def onStopButton(self):
         print("Stoped clicked")
-        self.controller.sendRequest("Stoped")
+        self.controller.sendRequest("robot/control/stop")
 
     def onCalibrate(self):
         print("Calibrate button clicked")
@@ -129,6 +136,9 @@ class MainContent(QWidget):
             self.onManualMoveButton()
             self.manualMoveContent.savePointButton.show()
             self.manualMoveContent.onSaveCallback = self.controller.saveRobotCalibrationPoint
+
+    def onHomeRobot(self):
+        self.controller.sendRequest("robot/control/home")
 
     def onManualMoveButton(self):
         if self.manualMoveContent is None:

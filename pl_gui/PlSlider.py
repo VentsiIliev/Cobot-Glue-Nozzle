@@ -67,18 +67,18 @@ class PlSlider(QWidget):
         self.slider.setStyleSheet("""
             QSlider::groove:horizontal {
                 border: 1px solid #000000;
-                height: 2px;
+                height: 6px;
                 background: #000000;
-                margin: 2px 0;
+                margin: 0px;
             }
 
             QSlider::handle:horizontal {
                 background: #905BA9;
                 border: 1px solid #905BA9;
-                width: 24px;
-                height: 12px;
-                margin: -5px 0;
-                border-radius: 12px;
+                width: 50px;
+                height: 50px;
+                margin: -22px 0px;
+                border-radius: 25px;
             }
         """)
 

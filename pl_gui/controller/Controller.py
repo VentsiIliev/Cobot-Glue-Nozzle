@@ -8,12 +8,14 @@ from API.shared.settings.conreateSettings.RobotSettings import RobotSettings
 
 GET_SETTINGS_TOPIC = "settings/get"
 START_TOPIC = "start"
-STOP_TOPIC = "stop"
+
 CREATE_WORKPIECE_TOPIC = "createworkpiece"
 CALIBRATE_TOPIC = "calibrate"
 MANUAL_MOVE_TOPIC = "robot/control/manual"
 SAVE_ROBOT_CALIBRATION_POINT = "robot/control/manual/save"
 JOG_ROBOT_TOPIC = "robot/control/manual/jog/"
+HOME_ROBOT_TOPIC = "robot/control/home"
+STOP_ROBOT_TOPIC = "robot/control/stop"
 UPDATE_CAMERA_FEED = "cameraFeed/update"
 
 class Controller:
@@ -25,8 +27,7 @@ class Controller:
             return self.__getSettings()
         elif message == START_TOPIC:
             return self.__start()
-        elif message == STOP_TOPIC:
-            return self.__stop()
+
         elif message == CREATE_WORKPIECE_TOPIC:
             return self.__createWorkpice()
         elif message == CALIBRATE_TOPIC:
@@ -39,8 +40,20 @@ class Controller:
             self.saveRobotCalibrationPoint()
         elif JOG_ROBOT_TOPIC in message:
             self.sendJogRequest(message)
+        elif message == HOME_ROBOT_TOPIC:
+            self.homeRobot()
+        elif message == STOP_ROBOT_TOPIC:
+            return self.__stop()
         else:
             self.requestSender.sendRequest(message)
+
+    def __stop(self):
+        request = Request(Constants.REQUEST_TYPE_EXECUTE, Constants.ACTION_STOP, Constants.REQUEST_RESOURCE_ROBOT)
+        self.requestSender.sendRequest(request)
+
+    def homeRobot(self):
+        request = Request(Constants.REQUEST_TYPE_EXECUTE,Constants.HOME_ROBOT,Constants.REQUEST_RESOURCE_ROBOT)
+        self.requestSender.sendRequest(request)
 
     def __getSettings(self):
         robotSettingsRequest = Request(Constants.REQUEST_TYPE_GET, Constants.ACTION_GET_SETTINGS,
@@ -76,8 +89,7 @@ class Controller:
 
         pass
 
-    def __stop(self):
-        pass
+
 
     def __createWorkpice(self):
         request = Request(Constants.REQUEST_TYPE_EXECUTE, Constants.ACTION_CREATE_WORKPIECE)

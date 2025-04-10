@@ -82,8 +82,12 @@ class RobotService:
                 messagebox.showwarning("        Warning", "Robot not connected.")
                 return
 
-            xOffset = toolTip.xOffset
-            yOffset = toolTip.yOffset
+            if toolTip == None:
+                xOffset = 0
+                yOffset = 0
+            else:
+                xOffset = toolTip.xOffset
+                yOffset = toolTip.yOffset
 
             print("     xOffset: ", xOffset, "yOffset: ", yOffset)
             robotPaths = []
@@ -152,6 +156,8 @@ class RobotService:
             return 25, Tool2()
         elif toolID == ToolID.Tool3:
             return 25, Tool3()
+        elif toolID == ToolID.Tool0:
+            return 25,None
         else:
             raise ValueError("Invalid tool ID")
 
@@ -192,8 +198,8 @@ class RobotService:
 
     def __getNestingMoves(self, angle, centroid, dropOffPositionX, dropOffPositionY, height):
         print("performPickAndPlaceMovement height: ", height)
-        xOffset = 53
-        yOffset = -14
+        xOffset = 50
+        yOffset = 50
         theta = math.radians(angle)
         # Apply 2D rotation matrix
         newXOffset = xOffset * math.cos(theta) - yOffset * math.sin(theta)
@@ -206,19 +212,19 @@ class RobotService:
         # Step 1: Pick up the workpiece
         path = []
 
-        path.append([x, y, self.MIN_Z_VALUE + 20,
+        path.append([x, y, self.MIN_Z_VALUE +30,
                      self.RX_VALUE, self.RY_VALUE, self.RZ_VALUE])
 
         # Step 2: Move down to the workpiece with the correct orientation angle
-        path.append([x, y, height-1,
+        path.append([x, y, height-1+6,
                      self.RX_VALUE, self.RY_VALUE, angle])
 
         # Step 3 pick up the workpiece
-        path.append([x, y, self.MIN_Z_VALUE + 20,
+        path.append([x, y, self.MIN_Z_VALUE + 30,
                      self.RX_VALUE, self.RY_VALUE, self.RZ_VALUE])
 
         # Step 4: Move to drop-off location
-        path.append([dropOffPositionX + xOffset, dropOffPositionY + yOffset, height + 20,
+        path.append([dropOffPositionX + xOffset, dropOffPositionY + yOffset, height + 30,
                      self.RX_VALUE, self.RY_VALUE, self.RZ_VALUE])
 
         return path
@@ -287,7 +293,7 @@ class RobotService:
 
         xMin = -250 # Minimum x value for nesting work area
         xMax = 400 # Maximum x value for nesting work area
-        yMax = 700 # Maximum y value for nesting work area
+        yMax = 600 # Maximum y value for nesting work area
         yMin = 250 # Minimum y value for nesting work area
         spacing = 30 # Spacing between workpieces
 
@@ -400,7 +406,7 @@ class RobotService:
 
         for point in path:
             self.robot.moveL(point, 0, 0, 100, 30, 0)
-        self.currentGripper = slotId
+        self.currentGripper = slotId-10
 
         return True, None
 
@@ -432,4 +438,7 @@ class RobotService:
 
     def startJog(self, axis, direction, step):
         self.robot.startJog(axis, direction, step, vel=50, acc=30)
+
+    def stopRobot(self):
+        self.robot.stopMotion()
 
