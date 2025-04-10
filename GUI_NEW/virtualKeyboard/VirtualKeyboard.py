@@ -1,62 +1,135 @@
-from PyQt6.QtWidgets import QWidget, QPushButton, QVBoxLayout, QGridLayout, QLineEdit
+from PyQt6.QtWidgets import (
+    QWidget, QPushButton, QVBoxLayout, QGridLayout,
+    QLineEdit, QApplication
+)
 from PyQt6.QtCore import Qt, QPoint
+import sys
 
+# ----- Virtual Keyboard Singleton -----
 class VirtualKeyboardSingleton:
     __instance = None
+    suppress_next_show = False
 
     @staticmethod
     def getInstance(target_input=None, parent=None) -> 'VirtualKeyboard':
-        """Returns the single instance of VirtualKeyboard."""
         if VirtualKeyboardSingleton.__instance is None:
             VirtualKeyboardSingleton.__instance = VirtualKeyboard(target_input=target_input, parent=parent)
-        elif target_input:  # Only update target_input if it’s passed
-            # VirtualKeyboardSingleton.__instance.update_target_input(target_input) # FIXME: Not working as expected
-            pass
+        elif target_input:
+            VirtualKeyboardSingleton.__instance.update_target_input(target_input)
         return VirtualKeyboardSingleton.__instance
 
+    @staticmethod
+    def suppress_once():
+        VirtualKeyboardSingleton.suppress_next_show = True
+
+    @staticmethod
+    def should_suppress():
+        val = VirtualKeyboardSingleton.suppress_next_show
+        VirtualKeyboardSingleton.suppress_next_show = False
+        return val
+
+# ----- Custom Input Field -----
+class FocusLineEdit(QLineEdit):
+    def focusInEvent(self, event):
+        super().focusInEvent(event)
+        if VirtualKeyboardSingleton.should_suppress():
+            return
+        keyboard = VirtualKeyboardSingleton.getInstance()
+        keyboard.update_target_input(self)
+        keyboard.show()
+
+# ----- Virtual Keyboard -----
 class VirtualKeyboard(QWidget):
     def __init__(self, target_input=None, parent=None):
         super().__init__(parent)
         self.target_input = target_input
 
-        # Inherit parent widget's style
-        if parent:
-            self.setStyleSheet(parent.styleSheet())  # Inherit the style from the parent
-
-        # Remove close button (❌) and make it frameless
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.Tool)
         self.setFixedSize(500, 300)
-
-        # Variables for dragging the window
         self.drag_position = QPoint()
+        self.mode = 'letters'
 
-        layout = QVBoxLayout()
-        self.setLayout(layout)
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
 
-        # Hide Keyboard Button
+        self.grid_layout = QGridLayout()
+        self.layout.addLayout(self.grid_layout)
+
         hide_button = QPushButton("Hide Keyboard")
         hide_button.clicked.connect(self.hideKeyboard)
-        layout.addWidget(hide_button)
+        self.layout.addWidget(hide_button)
 
-        # Keyboard Layout
-        grid_layout = QGridLayout()
-        keys = [
-            ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
-            ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
-            ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', '←'],
-            ['Z', 'X', 'C', 'V', 'B', 'N', 'M', '⌫', '⏎', '→']
-        ]
+        self.key_buttons = []
+        self.build_keyboard()
 
-        for row_index, row in enumerate(keys):
-            for col_index, key in enumerate(row):
+    def build_keyboard(self):
+        for btn in self.key_buttons:
+            btn.deleteLater()
+        self.key_buttons.clear()
+        self.grid_layout.setSpacing(2)
+
+        # Always show number row
+        number_keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
+        for col, key in enumerate(number_keys):
+            button = QPushButton(key)
+            button.setFixedSize(45, 45)
+            button.clicked.connect(lambda _, k=key: self.key_pressed(k))
+            self.key_buttons.append(button)
+            self.grid_layout.addWidget(button, 0, col)
+
+        # Define layout based on mode
+        if self.mode in ['letters', 'shift']:
+            keys = [
+                ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+                ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
+                ['⇧', 'z', 'x', 'c', 'v', 'b', 'n', 'm', '⌫'],
+                ['SYM', 'space', '⏎']
+            ]
+            if self.mode == 'shift':
+                keys = [[k.upper() if k not in ['⇧', '⌫', 'SYM', 'space', '⏎'] else k for k in row] for row in keys]
+        elif self.mode == 'symbols':
+            keys = [
+                ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')'],
+                ['_', '+', '=', '-', '/', ':', ';', '"', "'"],
+                ['ABC', '\\', '|', '<', '>', '[', ']', '{', '}', '⌫'],
+                ['.', ',', '⏎']
+            ]
+
+        # Add remaining keys
+        for row_offset, row in enumerate(keys, start=1):
+            for col, key in enumerate(row):
                 button = QPushButton(key)
-                button.clicked.connect(lambda checked, k=key: self.key_pressed(k))  # Corrected lambda issue
-                button.setFixedSize(45, 45)  # Button size
-                grid_layout.addWidget(button, row_index, col_index)
+                button.setFixedSize(45, 45)
+                button.clicked.connect(lambda _, k=key: self.key_pressed(k))
+                self.key_buttons.append(button)
+                self.grid_layout.addWidget(button, row_offset, col)
 
-        layout.addLayout(grid_layout)
+    def key_pressed(self, key):
+        if not self.target_input:
+            return
+        if key == '⌫':
+            self.target_input.backspace()
+        elif key == '⏎':
+            self.hideKeyboard()
+        elif key == '⇧':
+            self.mode = 'shift' if self.mode != 'shift' else 'letters'
+            self.build_keyboard()
+        elif key == 'SYM':
+            self.mode = 'symbols'
+            self.build_keyboard()
+        elif key == 'ABC':
+            self.mode = 'letters'
+            self.build_keyboard()
+        elif key == 'space':
+            self.target_input.insert(' ')
+        else:
+            self.target_input.insert(key)
+            if self.mode == 'shift':
+                self.mode = 'letters'
+                self.build_keyboard()
 
     def hideKeyboard(self):
+        VirtualKeyboardSingleton.suppress_once()
         self.target_input.clearFocus()
         self.hide()
 
@@ -70,22 +143,27 @@ class VirtualKeyboard(QWidget):
             self.move(self.pos() + delta)
             self.drag_position = event.globalPosition().toPoint()
 
-    def key_pressed(self, key):
-        if self.target_input:
-            print(f"Key pressed: {key}")  # Debugging line to see if the method is called
-            if key == "⌫":  # Backspace
-                self.target_input.backspace()  # Removes the last character
-            elif key == "⏎":  # Enter (Hide Keyboard)
-                self.hideKeyboard()
-            elif key == "→":  # Move Cursor Right
-                cursor_pos = self.target_input.cursorPosition()
-                self.target_input.setCursorPosition(cursor_pos + 1)
-            elif key == "←":  # Move Cursor Left
-                cursor_pos = self.target_input.cursorPosition()
-                self.target_input.setCursorPosition(max(0, cursor_pos - 1))
-            else:
-                self.target_input.insert(key)  # Insert the character pressed
-
     def update_target_input(self, target_input):
-        """Update the target input if needed."""
         self.target_input = target_input
+
+# ----- Main Application -----
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+
+    main_window = QWidget()
+    main_window.setStyleSheet("background-color: white;")
+    main_window.setFixedSize(800, 600)
+
+    input1 = FocusLineEdit(main_window)
+    input1.setGeometry(50, 50, 300, 40)
+
+    input2 = FocusLineEdit(main_window)
+    input2.setGeometry(50, 120, 300, 40)
+
+    input3 = FocusLineEdit(main_window)
+    input3.setGeometry(50, 190, 300, 40)
+
+    keyboard = VirtualKeyboardSingleton.getInstance(parent=main_window)
+
+    main_window.show()
+    sys.exit(app.exec())
