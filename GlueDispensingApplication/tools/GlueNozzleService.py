@@ -24,12 +24,12 @@ class GlueNozzleService:
         print("Entered Values:", data)
 
     def startGlueDotsDispensing(self):
-        data = [1, 16, 4, 20, 30, 24000, 0, 1800, 0]
+        data = [1, 16, 4, 20, 30, 24000, 0, 3000, 0]
         print("Starting glue dots dispensing")
         self.modbusClient.writeRegisters(100, data)
 
     def startGlueLineDispensing(self):
-        data = [1, 16, 4, 20, 30, 24000, 0, 1600, 0]
+        data = [1, 16, 4, 20, 30, 24000, 0, 3000, 0]
         print("Starting glue line dispensing")
         self.modbusClient.writeRegisters(100, data)
 

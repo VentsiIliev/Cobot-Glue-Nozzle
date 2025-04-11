@@ -55,6 +55,9 @@ class GlueSprayingApplication:
         self.workpieceService = workpieceService
         self.robotService = robotService
         self.robotService.moveToStartPosition()
+
+        # self.robotService.startExecutionThreads()
+
         self.robotCalibService = robotCalibrationService
 
         # Start the camera feed in a separate thread
@@ -154,7 +157,7 @@ class GlueSprayingApplication:
                 newListContours.append(contour)
                 # cnt = contour
 
-            self.robotService.traceContours(newListContours, height=4, toolID=ToolID.Tool2)
+            self.robotService.traceContours(newListContours, height=4, toolID=ToolID.Tool0)
 
         self.robotService.moveToStartPosition()
         return True, "Success"

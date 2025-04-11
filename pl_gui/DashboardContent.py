@@ -28,7 +28,7 @@ HOME_ROBOT_BUTTON_ICON_PATH =  os.path.join(RESOURCE_DIR, "pl_ui_icons",
                                                        "HOME_MACHINE_BUTTON.png")
 
 class MainContent(QWidget):
-    def __init__(self, screenWidth=1280, controller=None):
+    def __init__(self, screenWidth=1280, controller=None,parent=None):
         print("MainContent init started")
         super().__init__()
         self.screenWidth = screenWidth
@@ -166,7 +166,7 @@ class MainContent(QWidget):
             frame = data['image']
             self.cameraFeed.pause_feed(static_image=frame)
 
-            self.createWorkpieceForm = CreateWorkpieceForm(self, self.onCreateWorkpieceSubmit)
+            self.createWorkpieceForm = CreateWorkpieceForm(self.parent, self.onCreateWorkpieceSubmit)
             self.createWorkpieceForm.setHeigh(data[WorkpieceField.HEIGHT.value])
             self.content_layout.addWidget(self.createWorkpieceForm)
         else:

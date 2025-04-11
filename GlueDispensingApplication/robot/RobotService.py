@@ -11,8 +11,8 @@ from GlueDispensingApplication.tools.GlueNozzleService import GlueNozzleService
 from GlueDispensingApplication.tools.enums import ToolID
 from GlueDispensingApplication.tools.enums.ToolID import ToolID
 from GlueDispensingApplication.tools.enums.Gripper import Gripper
-from GlueDispensingApplication.tools.nozzles.Tool1 import Tool1
 from GlueDispensingApplication.tools.VacuumPump import VacuumPump
+from GlueDispensingApplication.tools.nozzles.Tool1 import Tool1
 from GlueDispensingApplication.tools.nozzles.Tool2 import Tool2
 from GlueDispensingApplication.tools.nozzles.Tool3 import Tool3
 from GlueDispensingApplication.utils import utils
@@ -34,7 +34,7 @@ class RobotService:
 
     def __init__(self, robot, settingsService, glueNozzleService: GlueNozzleService = None):
         self.robot = robot
-        self.robot.printSdkVerison()
+        self.robot.printSdkVersion()
         self.pump = VacuumPump()
         # TODO: FINISH IMPLEMENTATION FOR ROBOT SETTINGS
         self.settingsService = settingsService
@@ -122,9 +122,10 @@ class RobotService:
                     self.pump.turnOn(self.robot)
                 elif isinstance(toolTip, Tool2):
                     self.glueNozzleService.startGlueDotsDispensing()
-                    # pass
                 elif isinstance(toolTip, Tool3):
                     self.pump.turnOn(self.robot)
+                else:
+                    self.glueNozzleService.startGlueDotsDispensing()
 
                 self.executePathWithMoveL(acceleration, blendR, path, tool, velocity, workpiece)
 
@@ -137,9 +138,10 @@ class RobotService:
                     self.pump.turnOff(self.robot)
                 elif isinstance(toolTip, Tool2):
                     self.glueNozzleService.stopGlueDispensing()
-                    pass
                 elif isinstance(toolTip, Tool3):
                     self.pump.turnOff(self.robot)
+                else:
+                    self.glueNozzleService.stopGlueDispensing()
 
             # # write self.debugPath to txt file
             # with open('points.txt', 'w') as f:
@@ -441,4 +443,3 @@ class RobotService:
 
     def stopRobot(self):
         self.robot.stopMotion()
-

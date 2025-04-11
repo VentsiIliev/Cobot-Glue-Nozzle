@@ -75,7 +75,7 @@ class RobotWrapper:
     def getCurrentPosition(self):
         return self.robot.GetActualTCPPose()[1]
 
-    def getCurrentLinierSpeed(self):
+    def getCurrentLinerSpeed(self):
         return self.robot.GetActualTCPCompositeSpeed()
 
     def enable(self):
@@ -84,7 +84,7 @@ class RobotWrapper:
     def disable(self):
         self.robot.RobotEnable(0)
 
-    def printSdkVerison(self):
+    def printSdkVersion(self):
         print("Version: ", self.robot.GetSDKVersion())
 
     def setDigitalOutput(self, portId, value):
@@ -95,12 +95,11 @@ class RobotWrapper:
         direction = direction.value
         return self.robot.StartJOG(ref=4,nb=axis,dir=direction,vel=vel,acc=acc,max_dis=step)
 
-    import http.client  # Needed to catch the specific exception
 
     def stopMotion(self):
-        print("Stoping Robot")
+        print("Stopping Robot")
         return self.robot.StopMotion()
 
     def resetAllErrors(self):
-        print("Reseting Errors")
+        print("Resting Errors")
         return self.robot.ResetAllError()

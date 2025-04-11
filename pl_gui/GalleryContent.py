@@ -199,7 +199,7 @@ class GalleryContent(QWidget):
         # Select Button
         self.selectButton = QPushButton("", self)
         self.selectButton.setStyleSheet("border:none")
-        self.selectButton.setIcon(QIcon(APPLY_BUTTON_ICON_PATH))
+        self.selectButton.setIcon(QIcon(SELECT_BUTTON_ICON_PATH))
 
         self.removeButton = QPushButton("", self)
         self.removeButton.setStyleSheet("border:none")

@@ -7,6 +7,7 @@ from .specific.enums.Gripper import Gripper
 from .specific.enums.Program import Program
 from .specific.enums.GlueType import GlueType
 from .specific.enums.WorkpieceField import WorkpieceField
+from .virtualKeyboard.VirtualKeyboard import FocusLineEdit
 from enum import Enum
 
 # Assuming the path to stylesheets
@@ -31,13 +32,8 @@ CANCEL_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "createWorkpieceIcons", "CA
 class CreateWorkpieceForm(QWidget):
     def __init__(self, parent=None, callBack=None):
         super().__init__(parent)
-        #
-        # try:
-        #     with open(SETTINGS_STYLESHEET, "r") as file:
-        #         app.setStyleSheet(file.read())
-        # except FileNotFoundError:
-        #     print("Stylesheet file not found. Using default styles.")
 
+        self.parent = parent
         self.onSubmitCallBack = callBack
         self.setWindowTitle(TITLE)
         self.setContentsMargins(0, 0, 0, 0)
@@ -84,7 +80,8 @@ class CreateWorkpieceForm(QWidget):
         layout = QHBoxLayout()
         icon_label = self.create_icon_label(icon_path)
         layout.addWidget(icon_label)
-        input_field = QLineEdit()
+        # input_field = QLineEdit()
+        input_field = FocusLineEdit()
         input_field.setPlaceholderText(placeholder)
         input_field.setMinimumHeight(40)
         layout.addWidget(input_field)
@@ -179,7 +176,7 @@ class CreateWorkpieceForm(QWidget):
     def resizeEvent(self, event):
         """ Handle resizing of the window and icon sizes """
         super().resizeEvent(event)
-        newWidth = self.parent().width()
+        newWidth = self.parent.width()
 
         # Resize the icons in the labels
         for label, original_pixmap in self.icon_widgets:

@@ -33,6 +33,7 @@ class PlGui:
         dashboardContent = MainContent(screenWidth=DEFAULT_SCREEN_WIDTH,controller=self.controller)
 
         window = MainWindow(dashboardContent,self.controller)
+        dashboardContent.parent = window
 
         window.setWindowTitle(WINDOW_TITLE)
         window.setMinimumSize(DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT)

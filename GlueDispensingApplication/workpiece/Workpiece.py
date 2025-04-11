@@ -29,36 +29,36 @@ class Workpiece(BaseWorkpiece, JsonSerializable):
         self.contourArea = contourArea
         self.nozzles = nozzles
 
-        def __str__(self):
-            return (f"Workpiece ID: {self.workpieceId} \n"
-                    f"   Name: {self.name}\n"
-                    f"   Description: {self.description}\n"
-                    f"   Spray Type: {self.toolID}\n"
-                    f"   Glue Type: {self.glueType}\n"
-                    f"   Program: {self.program}\n"
-                    f"   Tool ID: {self.toolID}\n"
-                    f"   Gripper ID: {self.gripperID}\n"
-                    f"   Material: {self.material}\n"
-                    f"   Offset: {self.offset}\n"
-                    f"   Height: {self.height}\n"
-                    f"   Nozzles: {self.nozzles}\n"
-                    f"   Area: {self.contourArea}\n"
-                    f"   Spray Pattern: {self.sprayPattern}\n")
+    def __str__(self):
+        return (f"Workpiece ID: {self.workpieceId} \n"
+                f"   Name: {self.name}\n"
+                f"   Description: {self.description}\n"
+                f"   Spray Type: {self.toolID}\n"
+                f"   Glue Type: {self.glueType}\n"
+                f"   Program: {self.program}\n"
+                f"   Tool ID: {self.toolID}\n"
+                f"   Gripper ID: {self.gripperID}\n"
+                f"   Material: {self.material}\n"
+                f"   Offset: {self.offset}\n"
+                f"   Height: {self.height}\n"
+                f"   Nozzles: {self.nozzles}\n"
+                f"   Area: {self.contourArea}\n"
+                f"   Spray Pattern: {self.sprayPattern}\n")
 
-        def getFormattedDetails(self):
-            return [
-                f"ID: {self.workpieceId} ",
-                f"Description: {self.description}",
-                f"Program: {self.program}",
-                f"Offset: {self.offset}",
-                f"Height: {self.height} mm",
-                f"Tool ID: {self.toolID}",
-                f"Gripper ID: {self.gripperID}",
-                f"Glue Type: {self.glueType}",
-                f"Material: {self.material}",
-                f"Area {self.contourArea} ",
-                # f"Nozzles: {self.nozzles}"
-            ]
+    def getFormattedDetails(self):
+        return [
+            f"ID: {self.workpieceId} ",
+            f"Description: {self.description}",
+            f"Program: {self.program}",
+            f"Offset: {self.offset}",
+            f"Height: {self.height} mm",
+            f"Tool ID: {self.toolID}",
+            f"Gripper ID: {self.gripperID}",
+            f"Glue Type: {self.glueType}",
+            f"Material: {self.material}",
+            f"Area {self.contourArea} ",
+            # f"Nozzles: {self.nozzles}"
+        ]
 
     @staticmethod
     def serialize(workpiece):

@@ -89,3 +89,27 @@ class VirtualKeyboard(QWidget):
     def update_target_input(self, target_input):
         """Update the target input if needed."""
         self.target_input = target_input
+
+
+if __name__ == "__main__":
+    import sys
+    from PyQt6.QtWidgets import QApplication, QMainWindow
+
+    app = QApplication(sys.argv)
+
+    # Create a main window to test the virtual keyboard
+    main_window = QMainWindow()
+    main_window.setWindowTitle("Virtual Keyboard Test")
+    main_window.setFixedSize(800, 600)
+
+    # Example input field
+    input_field = QLineEdit(main_window)
+    input_field.setGeometry(50, 50, 300, 40)
+
+    # Initialize the virtual keyboard
+    keyboard = VirtualKeyboardSingleton.getInstance(target_input=input_field, parent=main_window)
+
+    main_window.show()
+    sys.exit(app.exec())
+
+

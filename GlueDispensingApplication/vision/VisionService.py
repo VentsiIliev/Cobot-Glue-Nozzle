@@ -57,6 +57,7 @@ class _VisionService(VisionSystem):
                         match.contour = utils.transformToCameraPoints(match.contour, cameraToRobotMatrix)
 
                         if match.workpieceId not in ids:
+
                             details = match.getFormattedDetails()
                             Overlay.draw_overlay(frame, details, match.contour)
                             ids.append(match.workpieceId)

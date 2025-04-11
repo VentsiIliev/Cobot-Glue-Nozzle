@@ -1,12 +1,12 @@
 import sys
 import os
-
+from PyQt6.QtCore import Qt
 from PyQt6.QtCore import QSize
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QFrame
 )
 from pl_gui.SettingsContent import SettingsContent
-
+from GlueDispensingApplication.tools.GlueNozzleService import GlueNozzleService
 from .ButtonConfig import ButtonConfig
 from .Header import Header
 from .Sidebar import Sidebar
@@ -26,6 +26,8 @@ class MainWindow(QMainWindow):
         print("MainWindow init started")
         self.controller=controller
         super().__init__()
+
+        self.keyPressEvent = self.on_key_press
 
         if dashboardWidget is None:
             print("Dash is none")
@@ -121,6 +123,22 @@ class MainWindow(QMainWindow):
 
         print("MainWindow init finished")
 
+
+    def on_key_press(self, event):
+        # temp code to test glue nozzle
+        if event.key() == Qt.Key.Key_O:
+            glueNozzleService = GlueNozzleService()
+            data = [1, 16, 4, 20, 30, 24000, 0, 3000, 0]
+            glueNozzleService.sendCommand(data)
+        elif event.key() == Qt.Key.Key_P:
+            glueNozzleService = GlueNozzleService()
+            data = [0, 16, 4, 20, 30, 24000, 0, 3000, 0]
+            glueNozzleService.sendCommand(data)
+        elif event.key() == Qt.Key.Key_Escape:
+            self.close()
+        elif event.key() == Qt.Key.Key_F1:
+            self.showNormal()
+
     def toggle_menu(self):
         """Show/Hide Sidebar and adjust layout"""
         is_visible = self.sidebar.isVisible()
@@ -146,7 +164,7 @@ class MainWindow(QMainWindow):
         """Show Main Content (Replace QWidget with MainContent)"""
         if isinstance(self.main_content, QWidget):  # Check if it’s the initial QWidget
             from .DashboardContent import MainContent  # Import only when needed
-            self.main_content = MainContent(screenWidth=self.screen_width,controller=self.controller)  # Replace with MainContent
+            self.main_content = MainContent(screenWidth=self.screen_width,controller=self.controller,parent = self)  # Replace with MainContent
             self.stacked_widget.addWidget(self.main_content)  # Add new widget to stacked widget
             self.stacked_widget.setCurrentWidget(self.main_content)  # Set it to current widget
         else:
