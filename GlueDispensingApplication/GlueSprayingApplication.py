@@ -93,7 +93,6 @@ class GlueSprayingApplication:
                 return False, message
 
             try:
-                # result, message = self.robotService.performWorkpiecesNesting(matches, self.updateToolChangerStation)
                 result, message = self.robotService.nestingNew(matches, self.updateToolChangerStation)
                 if not result:
                     self.robotService.moveToStartPosition()
@@ -118,6 +117,7 @@ class GlueSprayingApplication:
                 print(message)
                 return False, message
 
+            finalData = []
             for match in matches:
                 program = match.program
                 if match.sprayPattern is None or len(match.sprayPattern) <= 0:
@@ -136,12 +136,17 @@ class GlueSprayingApplication:
                     contour = np.array(contour, dtype=np.float32)  # Ensure the points array is of type CV_32F
                     contour = self.robotService.zigZag(contour, 10, "horizontal")
                     self.robotService.traceContours([contour], match.height, match.toolID)
-
+                    data = [contour], match.height, match.toolID
+                    finalData.append(data)
                 elif program == Program.TRACE:
-                    self.robotService.traceContours([contour], match.height,
-                                                    match.toolID)
+                    data = [contour], match.height, match.toolID
+                    finalData.append(data)
+                    # self.robotService.traceContours([contour], match.height,match.toolID)
                 else:
                     raise ValueError(f"Unknown program: {program}")
+
+            for d in finalData:
+                self.robotService.traceContours(d[0],d[1],d[2])
 
         else:
 

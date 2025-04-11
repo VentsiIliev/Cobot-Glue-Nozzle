@@ -37,6 +37,7 @@ class TrajectoryExecutor():
         self.targetPosition = None
         self.tragetPositonThreshold = 0
         self.targetPositionReachedCallback = None
+        #[path,startCallback,endCallback]
 
         self.motionThreadStopSignal = False
         self.motionThreadPauseSignal = False
@@ -56,6 +57,7 @@ class TrajectoryExecutor():
 
     def execute(self, acceleration, blendR, robotPath, tool, velocity, workpiece):
         count = 1
+
         for point in robotPath:
             if count == 0:
                 count = 0
