@@ -69,7 +69,7 @@ QDateEdit, QDateEdit::drop-down {
     border-radius: 5px;
 }
 
- QDateEdit::drop-down {
+QDateEdit::drop-down {
     background-color: #905BA9;  /* Change the drop-down button color if needed */
     color: white
 }
