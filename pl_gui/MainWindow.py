@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QFrame
 )
 from pl_gui.SettingsContent import SettingsContent
-from GlueDispensingApplication.tools.GlueNozzleService import GlueNozzleService
+# from GlueDispensingApplication.tools.GlueNozzleService import GlueNozzleService
 from .ButtonConfig import ButtonConfig
 from .Header import Header
 from .Sidebar import Sidebar
@@ -21,13 +21,15 @@ RUN_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "RUN_BUTTON.png
 RUN_PRESSED_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "PRESSED_RUN_BUTTON.png")
 LOGIN_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "LOGIN_BUTTON_SQUARE.png")
 LOGIN_PRESSED_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "PRESSED_RUN_BUTTON.png")
+HELP_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "HELP_BUTTON_SQUARE.png")
+HELP_PRESSED_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "PRESSED_HELP_BUTTON_SQUARE.png")
 class MainWindow(QMainWindow):
     def __init__(self, dashboardWidget=None,controller=None):
         print("MainWindow init started")
         self.controller=controller
         super().__init__()
 
-        self.keyPressEvent = self.on_key_press
+        # self.keyPressEvent = self.on_key_press
 
         if dashboardWidget is None:
             print("Dash is none")
@@ -59,35 +61,35 @@ class MainWindow(QMainWindow):
         dashboardButtonConfig = ButtonConfig(
             DASHBOARD_BUTTON_ICON_PATH,
             DASHBOARD_BUTTON_ICON_PATH,
-            "Home",
+            "",
             self.show_home
         )
         settingsButtonConfig = ButtonConfig(
             SETTINGS_BUTTON_ICON_PATH,
             SETTINGS_PRESSED_BUTTON_ICON_PATH,
-            "Settings",
+            "",
             self.show_settings)
 
         galleryButtonConfig = ButtonConfig(
             GALLERY_BUTTON_ICON_PATH,
             GALLERY_BUTTON_ICON_PATH,
-            "Help",
+            "",
             self.onGalleryButton)
 
-        runButtonConfig = ButtonConfig(
-            RUN_BUTTON_ICON_PATH,
-            RUN_PRESSED_BUTTON_ICON_PATH,
-            "Help",
+        helpButtonConfig = ButtonConfig(
+            HELP_BUTTON_ICON_PATH,
+            HELP_PRESSED_BUTTON_ICON_PATH,
+            "",
             self.show_help)
 
         loginButtonConfig = ButtonConfig(
             LOGIN_BUTTON_ICON_PATH,
             LOGIN_PRESSED_BUTTON_ICON_PATH,
-            "Login",
+            "",
             self.show_login)
         self.sidebar = Sidebar(self.screen_width,
                                [dashboardButtonConfig, settingsButtonConfig, galleryButtonConfig],
-                               [runButtonConfig, loginButtonConfig])
+                               [helpButtonConfig, loginButtonConfig])
         self.sidebar.setVisible(False)  # Make sidebar hidden by default
 
         self.sidebar.setStyleSheet("QWidget { background-color: red; }")
@@ -124,20 +126,20 @@ class MainWindow(QMainWindow):
         print("MainWindow init finished")
 
 
-    def on_key_press(self, event):
-        # temp code to test glue nozzle
-        if event.key() == Qt.Key.Key_O:
-            glueNozzleService = GlueNozzleService()
-            data = [1, 16, 4, 20, 30, 24000, 0, 3000, 0]
-            glueNozzleService.sendCommand(data)
-        elif event.key() == Qt.Key.Key_P:
-            glueNozzleService = GlueNozzleService()
-            data = [0, 16, 4, 20, 30, 24000, 0, 3000, 0]
-            glueNozzleService.sendCommand(data)
-        elif event.key() == Qt.Key.Key_Escape:
-            self.close()
-        elif event.key() == Qt.Key.Key_F1:
-            self.showNormal()
+    # def on_key_press(self, event):
+    #     # temp code to test glue nozzle
+    #     if event.key() == Qt.Key.Key_O:
+    #         glueNozzleService = GlueNozzleService()
+    #         data = [1, 16, 4, 20, 30, 24000, 0, 3000, 0]
+    #         glueNozzleService.sendCommand(data)
+    #     elif event.key() == Qt.Key.Key_P:
+    #         glueNozzleService = GlueNozzleService()
+    #         data = [0, 16, 4, 20, 30, 24000, 0, 3000, 0]
+    #         glueNozzleService.sendCommand(data)
+    #     elif event.key() == Qt.Key.Key_Escape:
+    #         self.close()
+    #     elif event.key() == Qt.Key.Key_F1:
+    #         self.showNormal()
 
     def toggle_menu(self):
         """Show/Hide Sidebar and adjust layout"""
