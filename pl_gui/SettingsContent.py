@@ -1,20 +1,43 @@
 import os
 
 from PyQt6.QtCore import QSize
-from PyQt6.QtGui import QIcon
+from PyQt6.QtGui import QIcon, QPixmap, QPainter
 from PyQt6.QtWidgets import QTabWidget, QWidget, QSizePolicy
+
+from .CustomWidgets import *
 
 from .CameraSettingsTabLayout import CameraSettingsTabLayout
 from .ContourSettingsTabLayout import ContourSettingsTabLayout
 from .RobotSettingsTabLayout import RobotSettingsTabLayout
-
+#
 RESOURCE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources")
 
+BACKGROUND = os.path.join(RESOURCE_DIR, "pl_ui_icons", "Background_&_Logo.png")
 CAMERA_SETTINGS_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "CAMERA_SETTINGS_BUTTON.png")
 CONTOUR_SETTINGS_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "CONTOUR_SETTINGS_BUTTON_SQUARE.png")
 ROBOT_SETTINGS_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "ROBOT_SETTINGS_BUTTON_SQUARE.png")
 
-class SettingsContent(QTabWidget):
+
+class BackgroundWidget(CustomTabWidget):
+    def __init__(self):
+        super().__init__()
+
+        # Load the background image
+        self.background = QPixmap(BACKGROUND)  # Update with your image path
+        if self.background.isNull():
+            print("Error: Background image not loaded correctly!")
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        if not self.background.isNull():
+            print("Drawing the background image")
+            painter.drawPixmap(self.rect(), self.background)  # Scale image to widget size
+        else:
+            print("Background image not loaded")
+        super().paintEvent(event)  # Call the base class paintEvent to ensure proper widget rendering
+
+
+class SettingsContent(BackgroundWidget):
     def __init__(self):
         super().__init__()
 
@@ -28,10 +51,9 @@ class SettingsContent(QTabWidget):
         """)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
-        # Add tabs
-        self.cameraSettingsTab = QWidget()
-        self.robotSettingsTab = QWidget()
-        self.contourSettingsTab = QWidget()
+        self.cameraSettingsTab = BackgroundTabPage()
+        self.robotSettingsTab = BackgroundTabPage()
+        self.contourSettingsTab = BackgroundTabPage()
 
         self.addTab(self.cameraSettingsTab, "")
         self.addTab(self.robotSettingsTab, "")
@@ -65,11 +87,12 @@ class SettingsContent(QTabWidget):
 
         super().resizeEvent(event)
 
-    def updateCameraSettings(self,cameraSettings):
+    def updateCameraSettings(self, cameraSettings):
         self.cameraSettingsTabLayout.updateValues(cameraSettings)
 
-    def updateRobotSettings(self,robotSettings):
+    def updateRobotSettings(self, robotSettings):
         self.robotSettingsTabLayout.updateValues(robotSettings)
+
 
 if __name__ == "__main__":
     import sys

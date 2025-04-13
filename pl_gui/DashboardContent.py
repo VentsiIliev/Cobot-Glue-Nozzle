@@ -24,11 +24,12 @@ CALIRATION__PRESSED_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons",
 ROBOT_SETTINGS_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "ROBOT_SETTINGS_BUTTON_SQUARE.png")
 ROBOT_SETTINGS_PRESSED_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons",
                                                        "PRESSSED_ROBOT_SETTINGS_BUTTON_SQUARE.png")
-HOME_ROBOT_BUTTON_ICON_PATH =  os.path.join(RESOURCE_DIR, "pl_ui_icons",
-                                                       "HOME_MACHINE_BUTTON.png")
+HOME_ROBOT_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons",
+                                           "HOME_MACHINE_BUTTON.png")
+
 
 class MainContent(QWidget):
-    def __init__(self, screenWidth=1280, controller=None,parent=None):
+    def __init__(self, screenWidth=1280, controller=None, parent=None):
         print("MainContent init started")
         super().__init__()
         self.screenWidth = screenWidth
@@ -71,7 +72,6 @@ class MainContent(QWidget):
         # Add the stacked widget to the main layout
         self.main_layout.addWidget(self.stacked_widget, 1)
 
-
         self.cameraFeed = CameraFeed(updateCallback=self.controller.updateCameraFeed)
         self.cameraFeedLayout = QVBoxLayout()
         self.content_layout.addWidget(self.cameraFeed)
@@ -107,13 +107,12 @@ class MainContent(QWidget):
                                                    self.onManualMoveButton)
 
         self.homeRobotButtonConfig = ButtonConfig(HOME_ROBOT_BUTTON_ICON_PATH,
-                                                   HOME_ROBOT_BUTTON_ICON_PATH,
-                                                   "home robot",
-                                                   self.onHomeRobot)
-
+                                                  HOME_ROBOT_BUTTON_ICON_PATH,
+                                                  "home robot",
+                                                  self.onHomeRobot)
 
         self.buttons = [self.startButtoncConfig, self.stopButtonConfig, self.createWorkpieceConfig,
-                        self.calibrationButtonConfig, self.manualMoveButtonConfig,self.homeRobotButtonConfig]
+                        self.calibrationButtonConfig, self.manualMoveButtonConfig, self.homeRobotButtonConfig]
 
         side_menu = Sidebar(self.screenWidth, self.buttons)
         side_menu.setStyleSheet("background-color: white; padding: 0px;")
@@ -147,7 +146,7 @@ class MainContent(QWidget):
                 self.createWorkpieceForm.close()
                 self.createWorkpieceForm = None
 
-            self.manualMoveContent = ManualControlWidget(self, self.manualMoveCallback,self.controller.sendJogRequest)
+            self.manualMoveContent = ManualControlWidget(self, self.manualMoveCallback, self.controller.sendJogRequest)
             self.content_layout.addWidget(self.manualMoveContent)
         else:
             self.manualMoveContent.close()
