@@ -1,9 +1,10 @@
 from PyQt6.QtWidgets import (
     QWidget, QPushButton, QVBoxLayout, QGridLayout,
-    QLineEdit, QApplication,QSizePolicy
+    QLineEdit, QApplication, QSizePolicy
 )
 from PyQt6.QtCore import Qt, QPoint
 import sys
+
 
 # ----- Virtual Keyboard Singleton -----
 class VirtualKeyboardSingleton:
@@ -28,6 +29,7 @@ class VirtualKeyboardSingleton:
         VirtualKeyboardSingleton.suppress_next_show = False
         return val
 
+
 # ----- Custom Input Field -----
 class FocusLineEdit(QLineEdit):
 
@@ -42,6 +44,7 @@ class FocusLineEdit(QLineEdit):
         keyboard = VirtualKeyboardSingleton.getInstance(self.parent)
         keyboard.update_target_input(self)
         keyboard.show()
+
 
 # ----- Virtual Keyboard -----
 class VirtualKeyboard(QWidget):
@@ -62,14 +65,11 @@ class VirtualKeyboard(QWidget):
         self.layout.setSpacing(0)
         self.setLayout(self.layout)
 
-
-
         self.grid_layout = QGridLayout()
         self.grid_layout.setContentsMargins(0, 0, 0, 0)
         self.grid_layout.setSpacing(2)  # Or 0 if you want *tight* layout
 
         self.layout.addLayout(self.grid_layout)
-
 
         hide_button = QPushButton("Hide Keyboard")
         hide_button.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
@@ -207,24 +207,25 @@ class VirtualKeyboard(QWidget):
             }
         """)
 
+
 # ----- Main Application -----
-# if __name__ == "__main__":
-#     app = QApplication(sys.argv)
-#
-#     main_window = QWidget()
-#     main_window.setStyleSheet("background-color: white;")
-#     main_window.setFixedSize(800, 600)
-#
-#     input1 = FocusLineEdit(main_window)
-#     input1.setGeometry(50, 50, 300, 40)
-#
-#     input2 = FocusLineEdit(main_window)
-#     input2.setGeometry(50, 120, 300, 40)
-#
-#     input3 = FocusLineEdit(main_window)
-#     input3.setGeometry(50, 190, 300, 40)
-#
-#     keyboard = VirtualKeyboardSingleton.getInstance(parent=main_window)
-#
-#     main_window.show()
-#     sys.exit(app.exec())
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+
+    main_window = QWidget()
+    main_window.setStyleSheet("background-color: white;")
+    main_window.setFixedSize(800, 600)
+
+    input1 = FocusLineEdit(main_window)
+    input1.setGeometry(50, 50, 300, 40)
+
+    input2 = FocusLineEdit(main_window)
+    input2.setGeometry(50, 120, 300, 40)
+
+    input3 = FocusLineEdit(main_window)
+    input3.setGeometry(50, 190, 300, 40)
+
+    keyboard = VirtualKeyboardSingleton.getInstance(parent=main_window)
+
+    main_window.show()
+    sys.exit(app.exec())

@@ -5,6 +5,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, QPoint
 import sys
 
+
 # ----- Virtual Keyboard Singleton -----
 class VirtualKeyboardSingleton:
     __instance = None
@@ -28,6 +29,7 @@ class VirtualKeyboardSingleton:
         VirtualKeyboardSingleton.suppress_next_show = False
         return val
 
+
 # ----- Custom Input Field -----
 class FocusLineEdit(QLineEdit):
     def focusInEvent(self, event):
@@ -37,6 +39,7 @@ class FocusLineEdit(QLineEdit):
         keyboard = VirtualKeyboardSingleton.getInstance()
         keyboard.update_target_input(self)
         keyboard.show()
+
 
 # ----- Virtual Keyboard -----
 class VirtualKeyboard(QWidget):
@@ -110,6 +113,7 @@ class VirtualKeyboard(QWidget):
         if key == '⌫':
             self.target_input.backspace()
         elif key == '⏎':
+            print(f"Entered text: {self.target_input.text()}")  # ✅ Print input before hiding
             self.hideKeyboard()
         elif key == '⇧':
             self.mode = 'shift' if self.mode != 'shift' else 'letters'
@@ -146,12 +150,14 @@ class VirtualKeyboard(QWidget):
     def update_target_input(self, target_input):
         self.target_input = target_input
 
+
 # ----- Main Application -----
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     main_window = QWidget()
     main_window.setStyleSheet("background-color: white;")
+    main_window.setStyleSheet("background-color: #f5f5f5;")
     main_window.setFixedSize(800, 600)
 
     input1 = FocusLineEdit(main_window)
