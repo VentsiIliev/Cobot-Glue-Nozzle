@@ -7,6 +7,7 @@ RESOURCE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resourc
 MINUS_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "MINUS_BUTTON.png")
 PLUS_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "PLUS_BUTTON.png")
 
+
 class PlSlider(QWidget):
     def __init__(self, orientation=Qt.Orientation.Horizontal, label_text="", parent=None):
         super().__init__(parent)
@@ -43,6 +44,7 @@ class PlSlider(QWidget):
         # Create a label to describe the setting
         self.label = QLabel(label_text, self)
         self.label.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        self.setStyleSheet("background-color: transparent;")
 
         # Create the slider
         self.slider = QSlider(orientation)
@@ -61,11 +63,13 @@ class PlSlider(QWidget):
         self.value_label = QLabel(str(self.slider.value()), self)
         self.value_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.value_label.setFixedWidth(50)  # Adjust fixed width for better fit
+        self.value_label.setStyleSheet("background-color: transparent;")  # Make background transparent
 
     def _set_slider_styles(self):
         """Set the style for the slider"""
         self.slider.setStyleSheet("""
             QSlider::groove:horizontal {
+              
                 border: 1px solid #000000;
                 height: 6px;
                 background: #000000;
@@ -125,7 +129,7 @@ class PlSlider(QWidget):
         self.minus_button.released.connect(self.stop_decreasing_value)
         self.plus_button.released.connect(self.stop_increasing_value)
 
-    def setDefaultValue(self,value):
+    def setDefaultValue(self, value):
         self.slider.setValue(value)
 
     def start_decreasing_value(self):
