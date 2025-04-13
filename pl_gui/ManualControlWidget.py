@@ -16,8 +16,9 @@ Y_PLUS_ICON_PATH = os.path.join(RESOURCE_DIR, "Y+_BUTTON.png")
 Y_MINUS_ICON_PATH = os.path.join(RESOURCE_DIR, "Y-_BUTTON.png")
 CANCEL_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "CANCEL_BUTTON.png")
 
+
 class ManualControlWidget(QFrame):
-    def __init__(self, parent=None, callback=None, jogCallback = None):
+    def __init__(self, parent=None, callback=None, jogCallback=None):
         super().__init__(parent)
         self.callback = callback
         self.jogCallback = jogCallback
@@ -143,8 +144,6 @@ class ManualControlWidget(QFrame):
         spacer = QSpacerItem(0, 150, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
         main_layout.addItem(spacer)
 
-
-
         self.close_button = QPushButton("")
         self.close_button.setIcon(QIcon(CANCEL_BUTTON_ICON_PATH))
         main_layout.addWidget(self.close_button)
@@ -156,26 +155,60 @@ class ManualControlWidget(QFrame):
         print("Saving points")
 
     # Methods for starting/stopping timers for Z, X, Y buttons
-    def start_z_plus(self): self.z_plus_timer.start()
-    def stop_z_plus(self): self.z_plus_timer.stop()
-    def start_z_minus(self): self.z_minus_timer.start()
-    def stop_z_minus(self): self.z_minus_timer.stop()
-    def start_x_plus(self): self.x_plus_timer.start()
-    def stop_x_plus(self): self.x_plus_timer.stop()
-    def start_x_minus(self): self.x_minus_timer.start()
-    def stop_x_minus(self): self.x_minus_timer.stop()
-    def start_y_plus(self): self.y_plus_timer.start()
-    def stop_y_plus(self): self.y_plus_timer.stop()
-    def start_y_minus(self): self.y_minus_timer.start()
-    def stop_y_minus(self): self.y_minus_timer.stop()
+    def start_z_plus(self):
+        self.z_plus_timer.start()
+
+    def stop_z_plus(self):
+        self.z_plus_timer.stop()
+
+    def start_z_minus(self):
+        self.z_minus_timer.start()
+
+    def stop_z_minus(self):
+        self.z_minus_timer.stop()
+
+    def start_x_plus(self):
+        self.x_plus_timer.start()
+
+    def stop_x_plus(self):
+        self.x_plus_timer.stop()
+
+    def start_x_minus(self):
+        self.x_minus_timer.start()
+
+    def stop_x_minus(self):
+        self.x_minus_timer.stop()
+
+    def start_y_plus(self):
+        self.y_plus_timer.start()
+
+    def stop_y_plus(self):
+        self.y_plus_timer.stop()
+
+    def start_y_minus(self):
+        self.y_minus_timer.start()
+
+    def stop_y_minus(self):
+        self.y_minus_timer.stop()
 
     # Action methods for button presses
-    def z_plus_action(self): self.jogCallback(f"robot/control/manual/jog/jogZPlus/{self.slider.slider.value()}")
-    def z_minus_action(self): self.jogCallback(f"robot/control/manual/jog/jogZMinus/{self.slider.slider.value()}")
-    def x_plus_action(self): self.jogCallback(f"robot/control/manual/jog/jogXPlus/{self.slider.slider.value()}")
-    def x_minus_action(self): self.jogCallback(f"robot/control/manual/jog/jogXMinus/{self.slider.slider.value()}")
-    def y_plus_action(self): self.jogCallback(f"robot/control/manual/jog/jogYPlus/{self.slider.slider.value()}")
-    def y_minus_action(self): self.jogCallback(f"robot/control/manual/jog/jogYMinus/{self.slider.slider.value()}")
+    def z_plus_action(self):
+        self.jogCallback(f"robot/control/manual/jog/jogZPlus/{self.slider.slider.value()}")
+
+    def z_minus_action(self):
+        self.jogCallback(f"robot/control/manual/jog/jogZMinus/{self.slider.slider.value()}")
+
+    def x_plus_action(self):
+        self.jogCallback(f"robot/control/manual/jog/jogXPlus/{self.slider.slider.value()}")
+
+    def x_minus_action(self):
+        self.jogCallback(f"robot/control/manual/jog/jogXMinus/{self.slider.slider.value()}")
+
+    def y_plus_action(self):
+        self.jogCallback(f"robot/control/manual/jog/jogYPlus/{self.slider.slider.value()}")
+
+    def y_minus_action(self):
+        self.jogCallback(f"robot/control/manual/jog/jogYMinus/{self.slider.slider.value()}")
 
     def resizeEvent(self, event):
         width = self.width()
@@ -184,7 +217,8 @@ class ManualControlWidget(QFrame):
         if width > 500:
             icon_size = min(width, height) // 6
 
-        for btn in [self.btn_z_plus, self.btn_z_minus, self.btn_x_minus, self.btn_x_plus, self.btn_y_plus, self.btn_y_minus]:
+        for btn in [self.btn_z_plus, self.btn_z_minus, self.btn_x_minus, self.btn_x_plus, self.btn_y_plus,
+                    self.btn_y_minus]:
             btn.setIconSize(QSize(icon_size, icon_size))
             btn.setFixedSize(QSize(icon_size, icon_size))
 
@@ -210,8 +244,10 @@ class ManualControlWidget(QFrame):
             self.callback()
         self.close()
 
+
 if __name__ == "__main__":
     import sys
+
     app = QApplication(sys.argv)
     window = ManualControlWidget()
     window.setWindowTitle("Manual Robot Control")
