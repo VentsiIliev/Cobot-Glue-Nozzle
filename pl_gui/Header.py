@@ -35,11 +35,12 @@ class Header(QWidget):
         self.logo_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
         # self.logo_label.setMaximumSize(150,50)
 
-        self.header_label = QLabel("Header Section")
+        # self.header_label = QLabel("Header Section")
+        self.header_label = QLabel("")
         self.header_label.setStyleSheet("color: black; font-size: 18px; padding-left: 10px;")
 
         # Add elements to header layout in swapped order
-        self.header_layout.addWidget(self.logo_label)  # Add logo first
+        # self.header_layout.addWidget(self.logo_label)  # Add logo first
         self.header_layout.addWidget(self.menu_button)  # Then add the menu button
         self.header_layout.addWidget(self.header_label)
         self.header_layout.addStretch()
