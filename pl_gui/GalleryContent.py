@@ -5,7 +5,7 @@ import time
 from PyQt6.QtCore import Qt, QSize, QDate
 from PyQt6.QtGui import QPixmap, QIcon, QFont
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QDateEdit, QLabel, QScrollArea, \
-    QGridLayout, QPushButton, QSizePolicy, QSplitter, QListWidget, QListWidgetItem
+    QGridLayout, QPushButton, QSizePolicy, QSplitter, QListWidget, QListWidgetItem, QFrame
 from PyQt6.QtWidgets import QScroller
 
 # Define the resource directory and placeholder image path
@@ -16,19 +16,20 @@ SELECT_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "PLUS_BUTTON
 REMOVE_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "MINUS_BUTTON.png")
 
 
-class GalleryContent(QWidget):
+class GalleryContent(QFrame):
     def __init__(self):
         super().__init__()
         self.setAttribute(Qt.WidgetAttribute.WA_AcceptTouchEvents)  # Enable touch events for the widget
         self.setWindowTitle("Date Picker and Thumbnail Viewer")
         self.setGeometry(100, 100, 800, 400)
-
+        self.setStyleSheet("border: none; background: transparent;")  # Transparent background
         # Store references to the preview image labels and timestamps
         self.preview_images = []
         self.timestamps = []  # List to store timestamps corresponding to the images
 
         # Main layout: Horizontal layout with two sections (left and right)
         main_layout = QHBoxLayout(self)
+        main_layout.setSpacing(1)
 
         # Create a splitter to manage the left and right sections
         splitter = QSplitter(Qt.Orientation.Horizontal)
@@ -36,15 +37,118 @@ class GalleryContent(QWidget):
         # Left Section Layout: Date Picker and Thumbnails
         left_layout = QVBoxLayout()
         left_layout.setContentsMargins(0, 0, 0, 0)  # Remove padding from the layout
+        left_layout.setSpacing(1)  # Spacing between widgets in the layout
 
         # Create Date Pickers for "From" and "To" date range
         self.from_date_picker = QDateEdit(self)
         self.from_date_picker.setCalendarPopup(True)
         self.from_date_picker.setDate(QDate.currentDate())  # Set default "from" date to today's date
+        self.from_date_picker.setStyleSheet("""
+                    QDateEdit {
+                        background-color: white;
+                        border: 2px solid #905BA9;
+                        border-radius: 5px;
+                        padding: 4px;
+                        color: black;
+                    }
+                    
+                    QCalendarWidget QWidget#qt_calendar_navigationbar {
+                        background-color: #905BA9;  /* Your custom color */
+                    }
+                    QDateEdit::drop-down {
+                        background-color: #905BA9;
+                        border: none;
+                        width: 20px;
+                        border-radius: 3px;
+                    }
+                   
+                    QCalendarWidget {
+                        background-color: white;
+                        border: 1px solid #ccc;
+                        border-radius: 5px;
+                    }
+                    QCalendarWidget QAbstractItemView {
+                        background-color: white;
+                        selection-background-color: #905BA9;
+                        selection-color: white;
+                    }
+                    QCalendarWidget QToolButton {
+                        background-color: #905BA9;
+                        color: white;
+                        border: none;
+                        border-radius: 3px;
+                        padding: 5px;
+                    }
+                 
+
+                    QCalendarWidget QToolButton:hover {
+                        background-color: #7a4791;
+                    }
+                    QCalendarWidget QSpinBox {
+                        background-color: white;
+                        border: 1px solid #ccc;
+                        border-radius: 3px;
+                    }
+                    QMenu {
+                    background: white;
+                    color: black;
+                }
+                """)
 
         self.to_date_picker = QDateEdit(self)
         self.to_date_picker.setCalendarPopup(True)
         self.to_date_picker.setDate(QDate.currentDate())  # Set default "to" date to today's date
+        self.to_date_picker.setStyleSheet("""
+            QDateEdit {
+                background-color: white;
+                border: 2px solid #905BA9;
+                border-radius: 5px;
+                padding: 4px;
+                color: black;
+            }
+            
+             QCalendarWidget QWidget#qt_calendar_navigationbar {
+                background-color: #905BA9;  /* Your custom color */
+            }
+            
+            QDateEdit::drop-down {
+                background-color: #905BA9;
+                border: none;
+                width: 20px;
+                border-radius: 3px;
+            }
+            
+            QMenu {
+                background: white;
+                color: black;
+            }
+         
+            QCalendarWidget {
+                background-color: white;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+            }
+            QCalendarWidget QAbstractItemView {
+                background-color: white;
+                selection-background-color: #905BA9;
+                selection-color: white;
+            }
+            QCalendarWidget QToolButton {
+                background-color: #905BA9;
+                color: white;
+                border: none;
+                border-radius: 3px;
+                padding: 5px;
+            }
+            QCalendarWidget QToolButton:hover {
+                background-color: #7a4791;
+            }
+            QCalendarWidget QSpinBox {
+                background-color: white;
+                border: 1px solid #ccc;
+                border-radius: 3px;
+            }
+        """)
 
         # Label for the date range
         date_range_label = QLabel("Select Date Range:", self)
@@ -56,9 +160,15 @@ class GalleryContent(QWidget):
         left_layout.addWidget(QLabel("To:"))
         left_layout.addWidget(self.to_date_picker)
 
+        spacer = QWidget()
+        spacer.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        left_layout.addWidget(spacer)  # Add spacer to push thumbnails to the top
+        spacer.setMaximumHeight(2)
+        spacer.setStyleSheet("background-color: #f0f0f0;")  # Transparent spacer
+
         # Thumbnails Section
         self.thumbnail_layout = QGridLayout()
-        self.thumbnail_layout.setSpacing(10)  # Spacing between thumbnails
+        self.thumbnail_layout.setSpacing(1)  # Spacing between thumbnails
         self.thumbnail_layout.setHorizontalSpacing(10)  # Horizontal spacing
         self.thumbnail_layout.setVerticalSpacing(10)  # Vertical spacing
         self.thumbnail_layout.setContentsMargins(0, 0, 0, 0)  # Remove padding from the grid layout
@@ -76,7 +186,7 @@ class GalleryContent(QWidget):
         for i in range(100):  # Increased the number of thumbnails for testing vertical scroll
             # Create a vertical layout for each thumbnail item
             thumbnail_item_layout = QVBoxLayout()
-            thumbnail_item_layout.setSpacing(0)  # Remove spacing between label and button
+            thumbnail_item_layout.setSpacing(1)  # Remove spacing between label and button
             thumbnail_item_layout.setContentsMargins(0, 0, 0, 0)  # Remove padding from the thumbnail layout
 
             # Generate a random timestamp or use the current time for a unique label
@@ -146,6 +256,7 @@ class GalleryContent(QWidget):
         # Right Section Layout: Preview area
         right_layout = QVBoxLayout()
         right_layout.setContentsMargins(0, 0, 0, 0)  # Remove padding from the right layout
+        # right_layout.setSpacing(1)
 
         # Create horizontal splitter for the right section
         right_splitter = QSplitter(Qt.Orientation.Vertical)
@@ -154,7 +265,7 @@ class GalleryContent(QWidget):
         preview_layout = QVBoxLayout()
         preview_layout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignCenter)  # Align top-center
         preview_layout.setContentsMargins(0, 0, 0, 0)  # Remove padding from the preview layout
-        preview_layout.setSpacing(5)  # Reduced spacing between label and image
+        # preview_layout.setSpacing(1)  # Reduced spacing between label and image
 
         # Preview label at the top
         self.preview_label = QLabel("Select a Thumbnail to Preview", self)
@@ -176,7 +287,7 @@ class GalleryContent(QWidget):
         top_widget.setLayout(preview_layout)
 
         # Set a thin border for the top widget to separate it from the bottom section
-        top_widget.setStyleSheet("border-bottom: 2px solid #cccccc;")  # Thin border between top and bottom sections
+        top_widget.setStyleSheet("border-bottom: 2px solid #f0f0f0;")  # Thin border between top and bottom sections
 
         # Bottom half: List and Button section
         selectedImagesLayout = QVBoxLayout()
@@ -256,7 +367,6 @@ class GalleryContent(QWidget):
 
         self.to_date_picker.dateChanged.connect(self.filter_thumbnails_by_date)
 
-
     def create_thumbnail_widget(self):
         """Creates and returns the widget that holds the thumbnails"""
         thumbnail_widget = QWidget(self)
@@ -268,9 +378,10 @@ class GalleryContent(QWidget):
         # Display the label for the clicked thumbnail using timestamp
         self.preview_label.setText(f"Preview of {timestamp}")
 
-        # Store the corresponding image reference and timestamp in the list
-        self.preview_images.append(self.placeholder_pixmap)
-        self.timestamps.append(timestamp)
+        # Only add if not already added (optional)
+        if timestamp not in self.timestamps:
+            self.preview_images.append(self.placeholder_pixmap)
+            self.timestamps.append(timestamp)
 
         # Update the preview image
         self.update_preview_image()
@@ -332,9 +443,13 @@ class GalleryContent(QWidget):
             self.update_preview_image()
 
     def update_preview_image(self):
-        """Updates the preview image to ensure it resizes responsively"""
         if self.preview_images:
-            pixmap = self.preview_images[-1].scaled(self.preview_image_label.size(), Qt.AspectRatioMode.KeepAspectRatio)
+            target_size = QSize(400, 300)  # Fixed size for preview
+            pixmap = self.preview_images[-1].scaled(
+                target_size,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation
+            )
             self.preview_image_label.setPixmap(pixmap)
 
     def resizeEvent(self, event):
@@ -344,13 +459,8 @@ class GalleryContent(QWidget):
         # Resize the preview image dynamically to take 50% of the right layout width
         right_layout_width = int(self.width() * 0.25)  # Ensure it's an integer for the scaled method
 
-        # Resize the preview image based on the updated width
-        pixmap = self.placeholder_pixmap.scaled(
-            right_layout_width,
-            self.preview_image_label.height(),
-            Qt.AspectRatioMode.KeepAspectRatio
-        )
-        self.preview_image_label.setPixmap(pixmap)
+        self.update_preview_image()
+
 
         # Get the available width for the thumbnails section
         available_width = self.width() * 0.4  # Use 40% of the window width for thumbnails
@@ -383,9 +493,3 @@ class GalleryContent(QWidget):
 
         event.accept()
 
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    widget = ThumbnailWidget()
-    widget.show()
-    sys.exit(app.exec())

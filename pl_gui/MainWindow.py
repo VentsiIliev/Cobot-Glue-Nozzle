@@ -23,10 +23,12 @@ LOGIN_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "LOGIN_BUTTON
 LOGIN_PRESSED_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "PRESSED_RUN_BUTTON.png")
 HELP_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "HELP_BUTTON_SQUARE.png")
 HELP_PRESSED_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "PRESSED_HELP_BUTTON_SQUARE.png")
+
+
 class MainWindow(QMainWindow):
-    def __init__(self, dashboardWidget=None,controller=None):
+    def __init__(self, dashboardWidget=None, controller=None):
         print("MainWindow init started")
-        self.controller=controller
+        self.controller = controller
         super().__init__()
 
         # self.keyPressEvent = self.on_key_press
@@ -36,9 +38,9 @@ class MainWindow(QMainWindow):
             self.main_content = QWidget()
         else:
             self.main_content = dashboardWidget
-
-        # self.setStyleSheet("background-color: #f0f0f0;")  # A light gray background instead of transparent
-        self.setStyleSheet("background-color: white;")  # A light gray background instead of transparent
+        self.setContentsMargins(0, 0, 0, 0)
+        self.setStyleSheet("background-color: #f0f0f0;")  # A light gray background instead of transparent
+        # self.setStyleSheet("background-color: white;")  # A light gray background instead of transparent
 
         # Get screen size
         screen_size = QApplication.primaryScreen().size()
@@ -52,6 +54,9 @@ class MainWindow(QMainWindow):
 
         # Layouts
         self.main_layout = QVBoxLayout(self.central_widget)
+        # Set spacing for the main layout
+        self.main_layout.setSpacing(1)  # Set spacing to 10 pixels
+        self.main_layout.setContentsMargins(0, 0, 0, 0)  # Set margins to 0 pixels
         self.content_layout = QHBoxLayout()  # Contains sidebar and main content
 
         # Header Section
@@ -90,9 +95,11 @@ class MainWindow(QMainWindow):
         self.sidebar = Sidebar(self.screen_width,
                                [dashboardButtonConfig, settingsButtonConfig, galleryButtonConfig],
                                [helpButtonConfig, loginButtonConfig])
+
+
         self.sidebar.setVisible(False)  # Make sidebar hidden by default
 
-        self.sidebar.setStyleSheet("QWidget { background-color: red; }")
+        self.sidebar.setStyleSheet("QWidget { background-color: white; }")
 
         # Create the QStackedWidget for content switching
         self.stacked_widget = QStackedWidget()
@@ -108,23 +115,22 @@ class MainWindow(QMainWindow):
         # Add sidebar & stacked widget to content layout
         self.content_layout.addWidget(self.sidebar)
         # Add a vertical separator
-        separatorLabel = QFrame()
-        separatorLabel.setFrameShape(QFrame.Shape.VLine)
-        separatorLabel.setFrameShadow(QFrame.Shadow.Sunken)
-        self.content_layout.addWidget(separatorLabel)
+        # separatorLabel = QFrame()
+        # separatorLabel.setFrameShape(QFrame.Shape.VLine)
+        # separatorLabel.setFrameShadow(QFrame.Shadow.Sunken)
+        # self.content_layout.addWidget(separatorLabel)
         self.content_layout.addWidget(self.stacked_widget, 1)  # Make stacked widget expand
 
         # Add header and content layout to main layout
         self.main_layout.addWidget(self.header)
         # add horizontal separator
-        separatorLabel = QFrame()
-        separatorLabel.setFrameShape(QFrame.Shape.HLine)
-        separatorLabel.setFrameShadow(QFrame.Shadow.Sunken)
-        self.main_layout.addWidget(separatorLabel)
+        # separatorLabel = QFrame()
+        # separatorLabel.setFrameShape(QFrame.Shape.HLine)
+        # separatorLabel.setFrameShadow(QFrame.Shadow.Sunken)
+        # self.main_layout.addWidget(separatorLabel)
         self.main_layout.addLayout(self.content_layout)
 
         print("MainWindow init finished")
-
 
     # def on_key_press(self, event):
     #     # temp code to test glue nozzle
@@ -166,7 +172,8 @@ class MainWindow(QMainWindow):
         """Show Main Content (Replace QWidget with MainContent)"""
         if isinstance(self.main_content, QWidget):  # Check if it’s the initial QWidget
             from .DashboardContent import MainContent  # Import only when needed
-            self.main_content = MainContent(screenWidth=self.screen_width,controller=self.controller,parent = self)  # Replace with MainContent
+            self.main_content = MainContent(screenWidth=self.screen_width, controller=self.controller,
+                                            parent=self)  # Replace with MainContent
             self.stacked_widget.addWidget(self.main_content)  # Add new widget to stacked widget
             self.stacked_widget.setCurrentWidget(self.main_content)  # Set it to current widget
         else:
@@ -182,6 +189,7 @@ class MainWindow(QMainWindow):
         self.settings_content.updateRobotSettings(robotSettings)
         print(cameraSettings)
         print(robotSettings)
+
     def show_help(self):
         """Display Help Content"""
         self.stacked_widget.setCurrentWidget(self.main_content)

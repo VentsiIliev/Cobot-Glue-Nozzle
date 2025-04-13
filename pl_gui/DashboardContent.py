@@ -26,35 +26,33 @@ ROBOT_SETTINGS_PRESSED_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icon
                                                        "PRESSSED_ROBOT_SETTINGS_BUTTON_SQUARE.png")
 HOME_ROBOT_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons",
                                            "HOME_MACHINE_BUTTON.png")
+STATIC_IMAGE_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "BACKGROUND_&_Logo.png")
 
 
-class MainContent(QWidget):
+class MainContent(QFrame):
     def __init__(self, screenWidth=1280, controller=None, parent=None):
         print("MainContent init started")
         super().__init__()
         self.screenWidth = screenWidth
+        self.parent = parent
+        # self.setStyleSheet("background:blue;")
+        self.setStyleSheet("background:transparent;")
         self.controller = controller
         self.setContentsMargins(0, 0, 0, 0)
 
         # Main layout for the content
         self.main_layout = QHBoxLayout(self)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
-        # self.main_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.main_layout.setSpacing(1)
+        self.main_layout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
 
         # Create and add the side menu to the main content
         self.side_menu = self.create_side_menu()
         self.side_menu.alignItemsLeft()
         self.side_menu.alignItemsCenter()
+
         # add thin border
         self.main_layout.addWidget(self.side_menu)
-        # add border
-
-        # add separator here
-        # Add a vertical separator
-        separatorLabel = QFrame()
-        separatorLabel.setFrameShape(QFrame.Shape.VLine)
-        separatorLabel.setFrameShadow(QFrame.Shadow.Sunken)
-        self.main_layout.addWidget(separatorLabel)
 
         # Main content area (center section)
         self.stacked_widget = QStackedWidget()
@@ -62,10 +60,12 @@ class MainContent(QWidget):
         self.content_area = QWidget()
         self.content_area.setContentsMargins(0, 0, 0, 0)
 
-        self.content_layout = QHBoxLayout(self.content_area)
+        self.content_layout = QHBoxLayout()
+        self.content_layout.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignLeft)
         self.content_layout.setContentsMargins(0, 0, 0, 0)
-        self.content_layout.setSpacing(0)
+        self.content_layout.setSpacing(1)
 
+        self.content_area.setLayout(self.content_layout)
         # Add the content area to the stacked widget
         self.stacked_widget.addWidget(self.content_area)
 
@@ -73,6 +73,7 @@ class MainContent(QWidget):
         self.main_layout.addWidget(self.stacked_widget, 1)
 
         self.cameraFeed = CameraFeed(updateCallback=self.controller.updateCameraFeed)
+        self.cameraFeed.pause_feed(static_image=STATIC_IMAGE_PATH)
         self.cameraFeedLayout = QVBoxLayout()
         self.content_layout.addWidget(self.cameraFeed)
         self.createWorkpieceForm = None
@@ -115,8 +116,9 @@ class MainContent(QWidget):
                         self.calibrationButtonConfig, self.manualMoveButtonConfig, self.homeRobotButtonConfig]
 
         side_menu = Sidebar(self.screenWidth, self.buttons)
-        side_menu.setStyleSheet("background-color: white; padding: 0px;")
+        # side_menu.setStyleSheet("background-color: white; padding: 0px;")
         side_menu.setContentsMargins(0, 0, 0, 0)
+        # side_menu.setStyleSheet("QWidget { background-color: red; }")
         return side_menu
 
     def onStartButton(self):

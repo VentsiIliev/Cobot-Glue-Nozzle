@@ -1,36 +1,55 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QFrame, \
+    QHBoxLayout, QSizePolicy, QApplication
 from PyQt6.QtGui import QPixmap, QImage, QPainter, QPen, QMouseEvent
 from PyQt6.QtCore import Qt, QTimer
 import numpy as np
 
 
-class CameraFeed(QWidget):
-    def __init__(self,updateCallback = None):
+class CameraFeed(QFrame):
+    def __init__(self, updateCallback=None):
         super().__init__()
-        self.container = QWidget()
+
+        # Get the screen size (resolution of the primary screen) using QScreen
+        screen = QApplication.primaryScreen()
+        screen_size = screen.size()
+        screen_width = screen_size.width()
+        screen_height = screen_size.height()
         self.updateCallback = updateCallback
-        self.container.setStyleSheet("background-color: red;")
-        self.layout = QVBoxLayout(self.container)
-        # align the layout to the bottom
-        self.layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.setContentsMargins(0, 0, 0, 0)
+        # Set widget size based on the screen size (e.g., 80% of the screen)
+        self.setFixedSize(int(screen_width * 0.8), int(screen_height * 0.8))  # 80% of the screen size
+        self.setMaximumSize(1280, 720)
+        self.container = QWidget()
+        self.container.setFixedSize(self.size())  # Set container size to match widget size
+        self.setContentsMargins(0, 0, 0, 0)
+        self.container.setContentsMargins(0, 0, 0, 0)
+        self.setStyleSheet("background-color: transparent; border: none;")  # No border for CameraFeed widget
+
+        self.layout = QHBoxLayout(self.container)
+        self.layout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
-        self.graphics_view = QGraphicsView(self)
-        # self.graphics_view.setStyleSheet("background-color: black;")
-        # remove any margins and paddings
-        self.graphics_view.setContentsMargins(0, 0, 0, 0)
-        #set max size
-        self.graphics_view.setMaximumSize(1280, 720)
 
-        # self.graphics_view.setFixedSize(800, 450)
-        # self.graphics_view.setFixedSize(1280, 720)
+        self.graphics_view = QGraphicsView(self)
+        self.graphics_view.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.graphics_view.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+
+        # Set the fixed size for the graphics view to match widget size
+        self.graphics_view.setFixedSize(self.size())
+        self.graphics_view.setContentsMargins(0, 0, 0, 0)
         self.graphics_view.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.graphics_view.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+
+        # Set no border for graphics view
+        self.graphics_view.setStyleSheet("border: none;")
+
         self.layout.addWidget(self.graphics_view)
         self.setLayout(self.layout)
 
         self.scene = QGraphicsScene(self)
         self.graphics_view.setScene(self.scene)
+        self.graphics_view.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         self.is_feed_paused = False
         self.clicked_points = []
@@ -56,10 +75,10 @@ class CameraFeed(QWidget):
             print("Failed to load image")
             return
 
-        # Resize the pixmap to 800x450
-        # resized_pixmap = pixmap.scaled(800, 450, Qt.AspectRatioMode.KeepAspectRatio,
-        #                                Qt.TransformationMode.SmoothTransformation)
-        resized_pixmap = pixmap  # new
+        # Resize the pixmap to fill the widget (without maintaining the aspect ratio)
+        resized_pixmap = pixmap.scaled(self.size().width(), self.size().height(),
+                                       Qt.AspectRatioMode.IgnoreAspectRatio,
+                                       Qt.TransformationMode.SmoothTransformation)
 
         self.scene.clear()
         pixmap_item = QGraphicsPixmapItem(resized_pixmap)
@@ -93,19 +112,15 @@ class CameraFeed(QWidget):
             else:
                 raise TypeError("Unsupported image type")
 
-            # resized_pixmap = pixmap.scaled(800, 450, Qt.AspectRatioMode.KeepAspectRatio,
-            #                                Qt.TransformationMode.SmoothTransformation)
-            resized_pixmap = pixmap  # new
-            # self.graphics_view.setFixedSize(800, 450)
-            self.graphics_view.setFixedSize(1280, 720)
+            resized_pixmap = pixmap.scaled(self.size().width(), self.size().height(),
+                                           Qt.AspectRatioMode.IgnoreAspectRatio,
+                                           Qt.TransformationMode.SmoothTransformation)
             self.scene.clear()
             pixmap_item = QGraphicsPixmapItem(resized_pixmap)
             self.scene.addItem(pixmap_item)
             self.graphics_view.setScene(self.scene)
 
     def resume_feed(self):
-        # self.graphics_view.setFixedSize(800, 450)
-        self.graphics_view.setFixedSize(1280, 720)
         self.is_feed_paused = False
         self.timer.start(100)
         print("Feed resumed.")
@@ -113,15 +128,15 @@ class CameraFeed(QWidget):
 
     def mousePressEvent(self, event: QMouseEvent):
         """Capture the mouse click event and get the raw coordinates (relative to the QGraphicsView)."""
-        originalSize = [1280, 720]
-        # displaySize = [800,450]
-        displaySize = [1280, 720]
+        originalSize = [1280, 720]  # Original reference size
+        displaySize = [self.size().width(), self.size().height()]  # Current size based on screen
         scale_x = originalSize[0] / displaySize[0]
         scale_y = originalSize[1] / displaySize[1]
         print(f"scale_x: {scale_x}, scale_y: {scale_y}")
+
         # Get the raw mouse position relative to the QGraphicsView
-        click_x = event.position().x() - 10  # x coordinate relative to the QGraphicsView
-        click_y = event.position().y() - 126  # y coordinate relative to the QGraphicsView
+        click_x = event.position().x()
+        click_y = event.position().y()
 
         print(f"Raw mouse clicked at position: ({click_x:.2f}, {click_y:.2f})")
         scaledPointX = click_x * scale_x
@@ -135,7 +150,6 @@ class CameraFeed(QWidget):
             return
 
         if self.is_feed_paused:
-
             pixmap_item = self.scene.items()[0]
             pixmap = pixmap_item.pixmap()
 
@@ -154,7 +168,6 @@ class CameraFeed(QWidget):
 
 if __name__ == "__main__":
     import sys
-    from PyQt6.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
     window = CameraFeed()

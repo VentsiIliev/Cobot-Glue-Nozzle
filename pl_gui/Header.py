@@ -2,12 +2,12 @@ import os
 
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtGui import QIcon, QPixmap
-from PyQt6.QtWidgets import QApplication, QHBoxLayout, QWidget, QPushButton, QLabel
+from PyQt6.QtWidgets import QApplication, QHBoxLayout, QWidget, QPushButton, QLabel, QFrame
 
 RESOURCE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources")
 MENU_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "SANDWICH_MENU.png")
 LOGO_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "logo.ico")
-class Header(QWidget):
+class Header(QFrame):
     def __init__(self, screen_width, screen_height, toggle_menu_callback):
         super().__init__()
 

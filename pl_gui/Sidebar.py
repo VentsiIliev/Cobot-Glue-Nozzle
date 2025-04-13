@@ -1,10 +1,10 @@
 # ad imports
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QFrame
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
 
 
-class Sidebar(QWidget):
+class Sidebar(QFrame):
     def __init__(self, screen_width, upperButtonsConfigList, lowerButtonsConfigList=None):
         super().__init__()
         self.setContentsMargins(0, 0, 0, 0)
@@ -13,8 +13,6 @@ class Sidebar(QWidget):
 
         self.buttons = []
         self.screen_width = screen_width
-
-
 
         self.setStyleSheet("background-color: white; padding: 0px;")
         self.setFixedWidth(int(self.screen_width * 0.07))

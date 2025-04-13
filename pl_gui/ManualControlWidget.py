@@ -3,7 +3,7 @@ from PyQt6.QtCore import QSize, Qt, QTimer
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QWidget, QPushButton, QGridLayout, QSizePolicy,
-    QApplication, QSpacerItem, QHBoxLayout, QVBoxLayout
+    QApplication, QSpacerItem, QHBoxLayout, QVBoxLayout, QFrame
 )
 from .PlSlider import PlSlider
 
@@ -16,13 +16,14 @@ Y_PLUS_ICON_PATH = os.path.join(RESOURCE_DIR, "Y+_BUTTON.png")
 Y_MINUS_ICON_PATH = os.path.join(RESOURCE_DIR, "Y-_BUTTON.png")
 CANCEL_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "CANCEL_BUTTON.png")
 
-class ManualControlWidget(QWidget):
+class ManualControlWidget(QFrame):
     def __init__(self, parent=None, callback=None, jogCallback = None):
         super().__init__(parent)
         self.callback = callback
         self.jogCallback = jogCallback
         self.onSaveCallback = None
         self.initUI()
+        self.setStyleSheet("background-color: #f0f0f0;")
 
     def initUI(self):
         main_layout = QGridLayout()
