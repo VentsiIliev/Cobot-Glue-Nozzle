@@ -47,8 +47,8 @@ class RobotController():
             x,y,z = currentPos[0],currentPos[1],currentPos[2]
             self.robotCalibrationService.saveRobotPoint([x,y,z])
             pointsCount = self.robotCalibrationService.robotPointIndex
-
-            if pointsCount==4:
+            print("PointsCount: ",pointsCount)
+            if pointsCount==10:
                 result,message = self.robotCalibrationService.calibrate()
                 if result:
                     self.robotService.cameraToRobotMatrix = self.robotCalibrationService.cameraToRobotMatrix
@@ -59,6 +59,7 @@ class RobotController():
                 return response.to_dict()
 
             else:
+                self.robotService.moveToPosition([currentPos[0],currentPos[1],currentPos[2]+50,180,0,0], 0, 0, 100, 30)
                 x,y,z=self.robotCalibrationService.getNextRobotPoint()
                 nextPosition = [x,y,150,180,0,0]
                 self.robotService.moveToPosition(nextPosition,0,0,100,30)

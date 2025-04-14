@@ -29,7 +29,7 @@ MATERIAL_ICON_PATH = os.path.join(RESOURCE_DIR, "createWorkpieceIcons", "MATERIA
 ACCEPT_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "createWorkpieceIcons", "ACCEPT_BUTTON.png")
 CANCEL_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "createWorkpieceIcons", "CANCEL_BUTTON.png")
 
-class CreateWorkpieceForm(QWidget):
+class CreateWorkpieceForm(QFrame):
     def __init__(self, parent=None, callBack=None):
         super().__init__(parent)
 
@@ -43,7 +43,7 @@ class CreateWorkpieceForm(QWidget):
         self.setLayout(self.settingsLayout)
 
         self.icon_widgets = []  # To store icon widgets for resizing later
-
+        self.setStyleSheet("background: #f0f0f0;")
         self.addWidgets()
 
     def addWidgets(self):

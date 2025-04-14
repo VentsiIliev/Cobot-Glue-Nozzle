@@ -92,13 +92,13 @@ class GlueSprayingApplication:
                 print(message)
                 return False, message
 
-            try:
-                result, message = self.robotService.nestingNew(matches, self.updateToolChangerStation)
-                if not result:
-                    self.robotService.moveToStartPosition()
-                    return result, message
-            except:
-                traceback.print_exc()
+            # try:
+            #     result, message = self.robotService.nestingNew(matches, self.updateToolChangerStation)
+            #     if not result:
+            #         self.robotService.moveToStartPosition()
+            #         return result, message
+            # except:
+            #     traceback.print_exc()
 
             self.robotService.moveToStartPosition()
 
@@ -122,20 +122,24 @@ class GlueSprayingApplication:
                 program = match.program
                 if match.sprayPattern is None or len(match.sprayPattern) <= 0:
                     contour = match.contour
-                    cntObject = Contour(contour)
-                    cntObject.shrink(5, 5)
-                    contour = cntObject.get_contour_points()
-                    contour = cntObject.simplify(0.004)  # Simplify the contour to remove redundant points
+                    # cntObject = Contour(contour)
+                    # cntObject.shrink(5, 5)
+                    # contour = cntObject.get_contour_points()
+                    # contour = cntObject.simplify(0.004)  # Simplify the contour to remove redundant points
                     contour = contour.tolist()
                     contour.append(contour[0])
+                    print("Contour: ",contour)
                 else:
                     contour = match.sprayPattern
+                    print("SprayPattern = ",contour)
+                    # transformed = utils.applyTransformation(self.visionService.cameraToRobotMatrix,
+                    #                                     [contour])
 
                 # Perform robot motion depending on the program type
                 if program == Program.ZIGZAG:
                     contour = np.array(contour, dtype=np.float32)  # Ensure the points array is of type CV_32F
                     contour = self.robotService.zigZag(contour, 10, "horizontal")
-                    self.robotService.traceContours([contour], match.height, match.toolID)
+                    # self.robotService.traceContours([contour], match.height, match.toolID)
                     data = [contour], match.height, match.toolID
                     finalData.append(data)
                 elif program == Program.TRACE:
@@ -146,23 +150,23 @@ class GlueSprayingApplication:
                     raise ValueError(f"Unknown program: {program}")
 
             for d in finalData:
-                self.robotService.traceContours(d[0],d[1],d[2])
+                self.robotService.traceContours(d[0], d[1], d[2])
 
         else:
 
             result, newContours = self.visionService.processContours()
-            newListContours = []
+            # newListContours = []
 
-            for cnt in newContours:
-                cntObject = Contour(cnt)
-                cntObject.shrink(5, 5)
-                contour = cntObject.simplify(0.004)
-                contour = contour.tolist()
-                contour.append(contour[0])
-                newListContours.append(contour)
-                # cnt = contour
+            # for cnt in newContours:
+            #     cntObject = Contour(cnt)
+            #     cntObject.shrink(5, 5)
+            #     contour = cntObject.simplify(0.004)
+            #     contour = contour.tolist()
+            #     contour.append(contour[0])
+            #     newListContours.append(contour)
+            #     # cnt = contour
 
-            self.robotService.traceContours(newListContours, height=4, toolID=ToolID.Tool0)
+            self.robotService.traceContours(newContours, height=4, toolID=ToolID.Tool0)
 
         self.robotService.moveToStartPosition()
         return True, "Success"
@@ -192,9 +196,9 @@ class GlueSprayingApplication:
         message = ""
         maxAttempts = 30
         while maxAttempts > 0:
-            print("Aruco Attempt: ",maxAttempts)
+            print("Aruco Attempt: ", maxAttempts)
             arucoCorners, arucoIds, image = self.visionService.detectArucoMarkers()
-            print("ids: ",arucoIds)
+            print("ids: ", arucoIds)
             # cv2.imwrite(f"aruco{maxAttempts}.png", image)
             if arucoIds is not None and len(arucoIds) >= 3:
                 break  # Stop retrying if enough markers are detected
@@ -215,32 +219,48 @@ class GlueSprayingApplication:
             id_to_corners[aruco_id] = arucoCorners[i][0]  # Store all 4 corners of this ID
 
         # Ensure we have all 4 required IDs
-        required_ids = {4, 5, 6, 7}
+        # required_ids = {4, 5, 6, 7}
+        required_ids = {2, 3, 4, 5, 6, 7, 8, 10, 12, 14}
         if not required_ids.issubset(id_to_corners.keys()):
             message = "Missing ArUco markers"
             return False, message, image
 
+        # # Assign corners based on IDs
+        # top_left = id_to_corners[4][0]  # First corner of ID 4
+        # top_right = id_to_corners[5][0]  # First corner of ID 5
+        # bottom_right = id_to_corners[6][0]  # First corner of ID 6
+        # bottom_left = id_to_corners[7][0]  # First corner of ID 7
+
         # Assign corners based on IDs
-        top_left = id_to_corners[4][0]  # First corner of ID 4
-        top_right = id_to_corners[5][0]  # First corner of ID 5
-        bottom_right = id_to_corners[6][0]  # First corner of ID 6
-        bottom_left = id_to_corners[7][0]  # First corner of ID 7
+        marker2 = id_to_corners[2][0]  # First corner of ID 2
+        marker3 = id_to_corners[3][0]   # First corner of ID 3
+        marker4 = id_to_corners[4][0]  # First corner of ID 4
+        marker5 = id_to_corners[5][0]  # First corner of ID 5
+        marker6 = id_to_corners[6][0]  # First corner of ID 6
+        marker7 = id_to_corners[7][0]  # First corner of ID 7
+        marker8 = id_to_corners[8][0]  # First corner of ID 8
+        marker10 = id_to_corners[10][0]  # First corner of ID 10
+        marker12 = id_to_corners[12][0]  # First corner of ID 12
+        marker14 = id_to_corners[14][0]  # First corner of ID 14
+        # marker16 = id_to_corners[16][0]  # First corner of ID 16
+
 
         # Ordered marker points
-        orderedMarkers = [top_left, top_right, bottom_right, bottom_left]
+        # orderedMarkers = [top_left, top_right, bottom_right, bottom_left]
+        orderedMarkers = [marker2,marker3,marker4,marker5,marker6,marker7,marker8,marker10,marker12,marker14]
         colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (0, 255, 255)]  # Red, Green, Blue, Yellow
         labels = [4, 5, 6, 7]  # ArUco IDs
 
         # Draw markers on the image with different colors
-        for i, (point, color, label) in enumerate(zip(orderedMarkers, colors, labels)):
-            cv2.circle(image, (int(point[0]), int(point[1])), 8, color, -1)  # Larger circle for visibility
+        # for i, (point, color, label) in enumerate(zip(orderedMarkers, colors, labels)):
+        #     cv2.circle(image, (int(point[0]), int(point[1])), 8, color, -1)  # Larger circle for visibility
 
         print(f"Assigned corners: {orderedMarkers}")
 
         # Send to robot calibration service
         self.robotCalibService.setCameraPoints(orderedMarkers)
 
-        if self.robotCalibService.getRobotPoints() is not None and len(self.robotCalibService.getRobotPoints()) == 4:
+        if self.robotCalibService.getRobotPoints() is not None and len(self.robotCalibService.getRobotPoints()) == 10:
             x, y, z = self.robotCalibService.getRobotPoints()[0]
             position = [x, y, z, 180, 0, 0]
             self.robotService.moveToPosition(position, 0, 0, 100, 30)
@@ -268,6 +288,7 @@ class GlueSprayingApplication:
         contour = np.array(contour, dtype=np.float32)  # Convert to numpy array with correct data type
         centroid = Contouring.calculateCentroid(contour)
         contourArea = cv2.contourArea(contour)
+        createWpImage = self.visionService.captureImage()
 
         """MEASURE HEIGHT"""
         laserController = Laser()
@@ -295,10 +316,10 @@ class GlueSprayingApplication:
         # self.robotService.moveToStartPosition()
         scaleFactor = 1
         message = "Workpiece created successfully"
-        #convert new frame to rgb
+        # convert new frame to rgb
         newFrame = cv2.cvtColor(newFrame, cv2.COLOR_BGR2RGB)
         self.robotService.moveToStartPosition()
-        return True, estimatedHeight, contourArea, contour, scaleFactor, newFrame, message
+        return True, estimatedHeight, contourArea, contour, scaleFactor, createWpImage, message
 
     def updateToolChangerStation(self):
         toolChanger = self.robotService.toolChanger

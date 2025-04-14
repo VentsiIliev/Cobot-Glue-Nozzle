@@ -96,8 +96,10 @@ class WorkpieceJsonRepository:
             # Save the workpiece to the file
             with open(file_path, 'w') as file:
                 file.write(serialized_data)
+            workpiece.sprayPattern = np.array(workpiece.sprayPattern).reshape(-1, 1, 2).astype(np.int32)
             self.data.append(workpiece)
             print(f"Workpiece saved to {file_path}")
+
             return True,"Workpiece saved successfully"
         except Exception as e:
             raise Exception(e)

@@ -136,7 +136,7 @@ class RobotControl(QFrame):
 
         pointsCount = response.data.get("pointsCount", 0)  # Default to 0 if key is missing
 
-        if pointsCount == 4:
+        if pointsCount == 10:
             print("All points saved")
             self.parent.close_robot_control()
 

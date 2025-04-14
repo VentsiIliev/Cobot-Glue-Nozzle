@@ -22,8 +22,9 @@ def findMatchingWorkpieces(workpieces, newContours):
 
     """ALIGN MATCHED CONTOURS."""
     finalMatches = _alignContours(matched, defectsThresh=DEFECT_THRESHOLD)
-    print(f"Final Matched {len(finalMatches)} workpieces")
+    # print(f"Final Matched {len(finalMatches)} workpieces")
     return finalMatches, noMatches, newContoursWithMatches
+    # return matched, noMatches, newContoursWithMatches
 
 
 def _remove_contour(newContours, contour_to_remove):
@@ -61,6 +62,7 @@ def _findMatches(newContours, workpieces):
 
             if similarity > SIMILARITY_THRESHOLD and similarity > best_similarity:
                 best_match = workpiece
+                #best_match.contour = contour.get_contour_points()
                 best_similarity = similarity
                 best_centroid_diff, best_rotation_diff = _calculateDifferences(workpieceContour, contour)
                 print(f"    Diff: {best_centroid_diff}, {best_rotation_diff}")
@@ -80,6 +82,7 @@ def _findMatches(newContours, workpieces):
             print(f"    Matched: {matchDict}")
 
 
+            # matched.append(best_match)
             matched.append(matchDict)
 
             _remove_contour(newContours, contour.get_contour_points())

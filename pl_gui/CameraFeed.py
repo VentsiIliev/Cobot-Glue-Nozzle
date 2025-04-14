@@ -1,5 +1,4 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QFrame, \
-    QHBoxLayout, QSizePolicy, QApplication
+from PyQt6.QtWidgets import QWidget, QHBoxLayout, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QFrame, QSizePolicy, QApplication
 from PyQt6.QtGui import QPixmap, QImage, QPainter, QPen, QMouseEvent
 from PyQt6.QtCore import Qt, QTimer
 import numpy as np
@@ -9,48 +8,49 @@ class CameraFeed(QFrame):
     def __init__(self, updateCallback=None):
         super().__init__()
 
-        # Get the screen size (resolution of the primary screen) using QScreen
-        screen = QApplication.primaryScreen()
-        screen_size = screen.size()
-        screen_width = screen_size.width()
-        screen_height = screen_size.height()
         self.updateCallback = updateCallback
-        self.setContentsMargins(0, 0, 0, 0)
-        # Set widget size based on the screen size (e.g., 80% of the screen)
-        self.setFixedSize(int(screen_width * 0.8), int(screen_height * 0.8))  # 80% of the screen size
-        self.setMaximumSize(1280, 720)
-        self.container = QWidget()
-        self.container.setFixedSize(self.size())  # Set container size to match widget size
-        self.setContentsMargins(0, 0, 0, 0)
-        self.container.setContentsMargins(0, 0, 0, 0)
-        self.setStyleSheet("background-color: transparent; border: none;")  # No border for CameraFeed widget
 
-        self.layout = QHBoxLayout(self.container)
+        # Get the screen size (resolution of the primary screen) using QScreen
+        # screen = QApplication.primaryScreen()
+        # screen_size = screen.size()
+        # screen_width = screen_size.width()
+        # screen_height = screen_size.height()
+        self.screen_size = (1280,720)
+        screen_width = self.screen_size[0]
+        screen_height = self.screen_size[1]
+
+        # Set widget size (80% of screen) and max cap
+        # self.setFixedSize(int(screen_width * 0.8), int(screen_height * 0.8))
+        self.setFixedSize(screen_width, screen_height)
+        self.setMaximumSize(1280, 720)
+        self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        self.setContentsMargins(0, 0, 0, 0)
+        self.setStyleSheet("background-color: transparent; border: none;")
+
+        # Layout for the frame
+        self.layout = QHBoxLayout(self)
         self.layout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
 
+        # Graphics view
         self.graphics_view = QGraphicsView(self)
-        self.graphics_view.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
-        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        self.graphics_view.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-
-        # Set the fixed size for the graphics view to match widget size
         self.graphics_view.setFixedSize(self.size())
+        self.graphics_view.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        self.graphics_view.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
         self.graphics_view.setContentsMargins(0, 0, 0, 0)
         self.graphics_view.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.graphics_view.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-
-        # Set no border for graphics view
         self.graphics_view.setStyleSheet("border: none;")
 
         self.layout.addWidget(self.graphics_view)
-        self.setLayout(self.layout)
 
+        # Scene
         self.scene = QGraphicsScene(self)
         self.graphics_view.setScene(self.scene)
         self.graphics_view.setRenderHint(QPainter.RenderHint.Antialiasing)
 
+        # Feed control
         self.is_feed_paused = False
         self.clicked_points = []
         self.transformedPoints = []
@@ -75,7 +75,6 @@ class CameraFeed(QFrame):
             print("Failed to load image")
             return
 
-        # Resize the pixmap to fill the widget (without maintaining the aspect ratio)
         resized_pixmap = pixmap.scaled(self.size().width(), self.size().height(),
                                        Qt.AspectRatioMode.IgnoreAspectRatio,
                                        Qt.TransformationMode.SmoothTransformation)
@@ -91,7 +90,6 @@ class CameraFeed(QFrame):
 
         try:
             frame = self.updateCallback()
-
             if frame is not None:
                 self.set_image(frame)
         except Exception as e:
@@ -126,22 +124,26 @@ class CameraFeed(QFrame):
         print("Feed resumed.")
         return self.clicked_points
 
+    def getClickedPoints(self):
+        points = self.clicked_points
+        self.clicked_points = []
+        return points
+
     def mousePressEvent(self, event: QMouseEvent):
-        """Capture the mouse click event and get the raw coordinates (relative to the QGraphicsView)."""
-        originalSize = [1280, 720]  # Original reference size
-        displaySize = [self.size().width(), self.size().height()]  # Current size based on screen
+        originalSize = [1280, 720]
+        displaySize = [self.size().width(), self.size().height()]
         scale_x = originalSize[0] / displaySize[0]
         scale_y = originalSize[1] / displaySize[1]
         print(f"scale_x: {scale_x}, scale_y: {scale_y}")
 
-        # Get the raw mouse position relative to the QGraphicsView
         click_x = event.position().x()
         click_y = event.position().y()
 
         print(f"Raw mouse clicked at position: ({click_x:.2f}, {click_y:.2f})")
         scaledPointX = click_x * scale_x
         scaledPointY = click_y * scale_y
-        self.clicked_points.append((click_x, click_y))  # Store the clicked point in raw coordinates
+        print(f"Scaled mouse clicked at position({scaledPointX:2f},{scaledPointY:2f})")
+        self.clicked_points.append((click_x, click_y))
         self.transformedPoints.append((scaledPointX, scaledPointY))
         self.draw_lines()
 
@@ -168,7 +170,6 @@ class CameraFeed(QFrame):
 
 if __name__ == "__main__":
     import sys
-
     app = QApplication(sys.argv)
     window = CameraFeed()
     window.set_image("resources/pl_ui_icons/Background_&_Logo.png")

@@ -200,14 +200,22 @@ class VisionSystem:
 
     def findContours(self, imageParam):
         """
-        Converts an image to grayscale, applies thresholding, and finds contours.
+        Converts an image to grayscale, applies thresholding, performs dilation and erosion, and finds contours.
         """
         gray = cv2.cvtColor(imageParam, cv2.COLOR_BGR2GRAY)
         blur = cv2.GaussianBlur(gray, (5, 5), 0)
         _, thresh = cv2.threshold(blur, self.thresh, 255, cv2.THRESH_BINARY_INV)
-        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        return contours
 
+        # Apply dilation to fill small holes
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+        dilated = cv2.dilate(thresh, kernel, iterations=2)
+
+        # Apply erosion to remove noise
+        eroded = cv2.erode(dilated, kernel, iterations=5)
+
+        # Find contours on the processed image
+        contours, _ = cv2.findContours(eroded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        return contours
     def approxContours(self, contours):
         """
         Approximates contours using the Ramer-Douglas-Pucker algorithm.

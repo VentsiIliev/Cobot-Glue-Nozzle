@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QFrame
 )
 from pl_gui.SettingsContent import SettingsContent
-# from GlueDispensingApplication.tools.GlueNozzleService import GlueNozzleService
+from GlueDispensingApplication.tools.GlueNozzleService import GlueNozzleService
 from .ButtonConfig import ButtonConfig
 from .Header import Header
 from .Sidebar import Sidebar
@@ -31,7 +31,7 @@ class MainWindow(QMainWindow):
         self.controller = controller
         super().__init__()
 
-        # self.keyPressEvent = self.on_key_press
+        self.keyPressEvent = self.on_key_press
 
         if dashboardWidget is None:
             print("Dash is none")
@@ -114,38 +114,31 @@ class MainWindow(QMainWindow):
 
         # Add sidebar & stacked widget to content layout
         self.content_layout.addWidget(self.sidebar)
-        # Add a vertical separator
-        # separatorLabel = QFrame()
-        # separatorLabel.setFrameShape(QFrame.Shape.VLine)
-        # separatorLabel.setFrameShadow(QFrame.Shadow.Sunken)
-        # self.content_layout.addWidget(separatorLabel)
+
         self.content_layout.addWidget(self.stacked_widget, 1)  # Make stacked widget expand
 
         # Add header and content layout to main layout
         self.main_layout.addWidget(self.header)
         # add horizontal separator
-        # separatorLabel = QFrame()
-        # separatorLabel.setFrameShape(QFrame.Shape.HLine)
-        # separatorLabel.setFrameShadow(QFrame.Shadow.Sunken)
-        # self.main_layout.addWidget(separatorLabel)
+
         self.main_layout.addLayout(self.content_layout)
 
         print("MainWindow init finished")
 
-    # def on_key_press(self, event):
-    #     # temp code to test glue nozzle
-    #     if event.key() == Qt.Key.Key_O:
-    #         glueNozzleService = GlueNozzleService()
-    #         data = [1, 16, 4, 20, 30, 24000, 0, 3000, 0]
-    #         glueNozzleService.sendCommand(data)
-    #     elif event.key() == Qt.Key.Key_P:
-    #         glueNozzleService = GlueNozzleService()
-    #         data = [0, 16, 4, 20, 30, 24000, 0, 3000, 0]
-    #         glueNozzleService.sendCommand(data)
-    #     elif event.key() == Qt.Key.Key_Escape:
-    #         self.close()
-    #     elif event.key() == Qt.Key.Key_F1:
-    #         self.showNormal()
+    def on_key_press(self, event):
+        # temp code to test glue nozzle
+        if event.key() == Qt.Key.Key_O:
+            glueNozzleService = GlueNozzleService()
+            data = [1, 16, 4, 20, 50, 24000, 0, 3000, 0]
+            glueNozzleService.sendCommand(data)
+        elif event.key() == Qt.Key.Key_P:
+            glueNozzleService = GlueNozzleService()
+            data = [0, 16, 4, 20, 50, 24000, 0, 3000, 0]
+            glueNozzleService.sendCommand(data)
+        elif event.key() == Qt.Key.Key_Escape:
+            self.close()
+        elif event.key() == Qt.Key.Key_F1:
+            self.showNormal()
 
     def toggle_menu(self):
         """Show/Hide Sidebar and adjust layout"""

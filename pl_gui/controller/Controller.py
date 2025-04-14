@@ -217,7 +217,7 @@ class Controller:
 
         pointsCount = response.data.get("pointsCount", 0)  # Default to 0 if key is missing
 
-        if pointsCount == 4:
+        if pointsCount == 10:
             print("All points saved")
             return True,True
 

@@ -1,6 +1,9 @@
 import cv2
 import numpy as np
 
+from GlueDispensingApplication.utils.utils import rotate_point
+
+
 def zigZag( contour, spacing, direction):
     points = [tuple(point) for point in contour]
     zigzag_coords = []
@@ -50,4 +53,5 @@ def zigZag( contour, spacing, direction):
     # Apply rotation transformation
     rotated_points = (rotation_matrix @ points_homogeneous.T).T[:, :2].astype(int)
 
-    return [(float(x), float(y)) for x, y in rotated_points]
+    # return [(float(x), float(y)) for x, y in rotated_points]
+    return rotated_points.reshape(-1, 1, 2).astype(np.int32)

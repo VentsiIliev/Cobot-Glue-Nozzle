@@ -76,7 +76,7 @@ class RobotService:
         print(" Tracing contours")
         requiredSprayingHeight, toolTip = self.__getTool(toolID)
         threshold = 5
-        height = self.pump.zOffset + height + requiredSprayingHeight
+        height = self.pump.zOffset + height + 7
         try:
             if not self.robot:
                 messagebox.showwarning("        Warning", "Robot not connected.")
@@ -96,6 +96,8 @@ class RobotService:
                 path = []
                 for point in cnt:
                     point = point[0]
+                    print("Point[0] = ",point)
+                    point[1] = point[1]-1
                     path.append((point[0] + xOffset, point[1] + yOffset,
                                  height, self.RX_VALUE, self.RY_VALUE, self.RZ_VALUE))
                     self.debugPath.append((point[0] + xOffset, point[1] + yOffset,
@@ -122,9 +124,11 @@ class RobotService:
                     self.pump.turnOn(self.robot)
                 elif isinstance(toolTip, Tool2):
                     self.glueNozzleService.startGlueDotsDispensing()
+                    # pass
                 elif isinstance(toolTip, Tool3):
                     self.pump.turnOn(self.robot)
                 else:
+                    # pass
                     self.glueNozzleService.startGlueDotsDispensing()
 
                 self.executePathWithMoveL(acceleration, blendR, path, tool, velocity, workpiece)
