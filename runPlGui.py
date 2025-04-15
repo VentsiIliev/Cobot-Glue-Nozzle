@@ -43,6 +43,9 @@ class MockController():
         return cameraSettings, robotSettings
 
 
+    def saveWorkpieceFromDXF(self,data):
+        print("Saving wp from dxf: ",data)
+
 if __name__ == "__main__":
     mockController = MockController()
     gui = PlGui(controller=mockController)

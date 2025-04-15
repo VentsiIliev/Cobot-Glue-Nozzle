@@ -109,6 +109,18 @@ class Controller:
 
         return True,responseData
 
+    def saveWorkpieceFromDXF(self,data):
+        request = Request(Constants.REQUEST_TYPE_POST, Constants.ACTION_SAVE_WORKPIECE_DXF,
+                          Constants.REQUEST_RESOURCE_WORKPIECE, data=data)
+        responseDict = self.requestSender.sendRequest(request)
+        response = Response.from_dict(responseDict)
+
+        if response.status == Constants.RESPONSE_STATUS_ERROR:
+            message = "Error saving workpiece"
+            return False, response.message
+
+        return True, response.message
+
     def saveWorkpiece(self,data):
         request = Request(Constants.REQUEST_TYPE_POST, Constants.ACTION_SAVE_WORKPIECE,
                           Constants.REQUEST_RESOURCE_WORKPIECE, data=data)

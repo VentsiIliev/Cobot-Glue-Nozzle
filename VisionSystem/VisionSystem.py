@@ -283,7 +283,7 @@ class VisionSystem:
         # frame = self.camera.capture()
         # frame = self.correctImage(frame)
         print("Capturing image")
-        print("Corrected image shape: ", self.correctedImage.shape)
+        # print("Corrected image shape: ", self.correctedImage.shape)
         return self.correctedImage
 
     def updateSettings(self, settings: dict):

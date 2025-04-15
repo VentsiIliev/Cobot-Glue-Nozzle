@@ -83,11 +83,23 @@ class Workpiece(BaseWorkpiece, JsonSerializable):
             return obj
 
         # Apply the conversion for contour and sprayPattern
-        contour_list = convert_ndarray_to_list(workpiece.contour)
-        spray_pattern_list = flatten_points(workpiece.sprayPattern)
 
+        # Debugging: Print the types of contour and sprayPattern
+        print("Type of workpiece.contour:", type(workpiece.contour))
+        print("Type of workpiece.sprayPattern:", type(workpiece.sprayPattern))
+
+        contour_list = convert_ndarray_to_list(workpiece.contour)
+        if isinstance(workpiece.sprayPattern, np.ndarray):
+            spray_pattern_list = workpiece.sprayPattern.tolist()
+        else:
+            spray_pattern_list = flatten_points(workpiece.sprayPattern)
+        print("Serialized cnt and spray")
         workpiece.contour = contour_list
         workpiece.sprayPattern = spray_pattern_list
+
+        # Debugging: Print the types of contour and sprayPattern
+        print("Type of workpiece.contour after serialization:", type(workpiece.contour))
+        print("Type of workpiece.sprayPattern after serialization :", type(workpiece.sprayPattern))
 
         return workpiece.toDict()
 

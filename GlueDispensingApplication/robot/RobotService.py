@@ -73,6 +73,7 @@ class RobotService:
             messagebox.showerror("Error", f"Error moving to start position: {e}")
 
     def traceContours(self, contours, height, toolID=None):
+        self.cleanNozzle()
         print(" Tracing contours")
         requiredSprayingHeight, toolTip = self.__getTool(toolID)
         threshold = 5
@@ -447,3 +448,41 @@ class RobotService:
 
     def stopRobot(self):
         self.robot.stopMotion()
+
+    def cleanNozzle(self):
+
+        vel = 20
+        acc = 30
+        blendR = 1
+
+
+        pos1 = [-520,450,225,180,0,0]
+        pos2 = [-520,350,225,180,0,0]
+
+        self.robot.moveCart(pos1,0,0,vel,acc)
+        repeat=2
+        while repeat >= 0:
+            self.robot.moveL(pos1, 0, 0, vel, acc, blendR)
+            self.robot.moveL(pos2, 0, 0, vel, acc, blendR)
+            repeat -= 1
+
+        pos3 = [-520,350,250,180,0,0]
+        self.robot.moveCart(pos3,0,0,vel,acc)
+
+
+        pos4 = [-500,405,250,180,0,0]
+        self.robot.moveCart(pos4,0,0,vel,acc)
+        pos5 = [-500,405,230,180,0,0]
+        self.robot.moveCart(pos5,0,0,vel,acc)
+        # pos5 = [-550,405,230,180,0,0]
+        pos6 =  [-550,405,230,180,0,0]
+        repeat = 2
+        while repeat >=0:
+            self.robot.moveL(pos5,0,0,vel,acc,blendR)
+            self.robot.moveL(pos6,0,0,vel,acc,blendR)
+            repeat-=1
+        pos7 = [-550,405,250,180,0,0]
+        self.robot.moveL(pos7, 0, 0, vel, acc, blendR)
+        self.moveToStartPosition()
+        # raise ValueError
+

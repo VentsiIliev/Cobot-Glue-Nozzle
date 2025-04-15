@@ -73,6 +73,7 @@ class MainContent(QFrame):
             ButtonConfig(CALIRATION_BUTTON_ICON_PATH, CALIRATION__PRESSED_BUTTON_ICON_PATH, "calibrate", self.onCalibrate),
             ButtonConfig(ROBOT_SETTINGS_BUTTON_ICON_PATH, ROBOT_SETTINGS_PRESSED_BUTTON_ICON_PATH, "manualMove", self.onManualMoveButton),
             ButtonConfig(HOME_ROBOT_BUTTON_ICON_PATH, HOME_ROBOT_BUTTON_ICON_PATH, "home robot", self.onHomeRobot),
+            ButtonConfig(RUN_BUTTON_ICON_PATH, RUN_BUTTON_PRESSED_ICON_PATH, "DFX", self.dfxUpload),
         ]
 
         side_menu = Sidebar(self.screenWidth, self.buttons)
@@ -135,6 +136,47 @@ class MainContent(QFrame):
         self.createWorkpieceForm = None
         self.cameraFeed.resume_feed()
         self.controller.saveWorkpiece(data)
+
+    def dfxUpload(self):
+        from PyQt6.QtWidgets import QFileDialog
+
+        # Open file dialog to select a DXF file
+        file_name, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select DXF File",
+            "",
+            "DXF Files (*.dxf);;All Files (*)"
+        )
+
+        if file_name:
+            print(f"Selected DXF file: {file_name}")
+            from drawing.DxfParser import DXFPathExtractor
+            extractor = DXFPathExtractor(file_name)
+            wp, spray = extractor.get_opencv_contours()
+            print("✅ Workpiece Points:", wp)
+            print("✅ Spray Pattern Points:", spray)
+
+            # extractor.plot()
+            extractor.save_dxf("plate_with_border.dxf")
+
+            from API.shared.workpiece.Workpiece import WorkpieceField
+            data = {
+                WorkpieceField.WORKPIECE_ID.value: 100,
+                WorkpieceField.NAME.value: "From DFX",
+                WorkpieceField.DESCRIPTION.value: "From DFX",
+                WorkpieceField.TOOL_ID.value: "0",
+                WorkpieceField.GRIPPER_ID.value: "0",
+                WorkpieceField.GLUE_TYPE.value: "Type A",
+                WorkpieceField.PROGRAM.value: "Trace",
+                WorkpieceField.MATERIAL.value: "N/A",
+                WorkpieceField.OFFSET.value: 0,
+                WorkpieceField.HEIGHT.value: 4,
+                WorkpieceField.SPRAY_PATTERN.value: spray,
+                WorkpieceField.CONTOUR.value: wp,
+                WorkpieceField.CONTOUR_AREA.value : 0
+            }
+
+            self.controller.saveWorkpieceFromDXF(data)
 
     def resizeEvent(self, event):
         """Resize content and side menu dynamically."""

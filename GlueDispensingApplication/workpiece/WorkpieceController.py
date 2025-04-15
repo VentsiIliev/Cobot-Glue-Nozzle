@@ -13,12 +13,16 @@ class WorkpieceController():
 
     def handlePostRequest(self, request):
         print("request in workpiece controller", request)
-        if request.action == Constants.ACTION_SAVE_WORKPIECE:
+        if request.action == Constants.ACTION_SAVE_WORKPIECE or request.action == Constants.ACTION_SAVE_WORKPIECE_DXF:
             print("data in workpiece controller", request.data)
             # add the chahced info to the data
+            print("before if")
             if self.cacheInfo:
+                print("IN IF")
                 request.data.update(self.cacheInfo)
                 self.cacheInfo = {}
                 self.scaleFactor = 1
+            print("New DATA: ",request.data)
             workpiece = Workpiece.fromDict(request.data)
+            print("WP: ",workpiece)
             return self.workpieceService.saveWorkpiece(workpiece)

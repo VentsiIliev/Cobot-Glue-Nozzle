@@ -6,7 +6,7 @@ import copy
 import traceback
 from API.shared.Contour import Contour
 
-SIMILARITY_THRESHOLD = 90
+SIMILARITY_THRESHOLD = 70
 DEFECT_THRESHOLD = 5
 
 
@@ -229,6 +229,9 @@ def _getSimilarity(contour1, contour2):
     # Ensure contours are valid NumPy arrays with the correct shape
     contour1 = np.array(contour1, dtype=np.float32)
     contour2 = np.array(contour2, dtype=np.float32)
+
+    print("Contour1: ",contour1)
+    print("Contour2: ",contour2)
 
     similarity = cv2.matchShapes(contour1, contour2, cv2.CONTOURS_MATCH_I1, 0.0)
     similarityPercent = (1 - similarity) * 100

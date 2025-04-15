@@ -58,6 +58,19 @@ class RequestHandler:
         if request.action == Constants.ACTION_SAVE_WORKPIECE:
             return self._handleSaveWorkpiece(request)
 
+        if request.action == Constants.ACTION_SAVE_WORKPIECE_DXF:
+            return self._handleSaveWorkpieceDXF(request)
+
+    def _handleSaveWorkpieceDXF(self,request):
+        print("Saving DFX")
+        result = self.workpieceController.handlePostRequest(request)
+
+
+        if result:
+            return Response(Constants.RESPONSE_STATUS_SUCCESS, message="Workpiece saved successfully").to_dict()
+        else:
+            return Response(Constants.RESPONSE_STATUS_ERROR, message="Error saving workpiece").to_dict()
+
     def _handleSaveWorkpiece(self, request):
         """
         Prepares and transforms the spray pattern before saving a workpiece.

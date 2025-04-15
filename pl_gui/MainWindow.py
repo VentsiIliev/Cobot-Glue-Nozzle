@@ -129,11 +129,11 @@ class MainWindow(QMainWindow):
         # temp code to test glue nozzle
         if event.key() == Qt.Key.Key_O:
             glueNozzleService = GlueNozzleService()
-            data = [1, 16, 4, 20, 50, 24000, 0, 3000, 0]
+            data = [1, 16, 4, 20, 80, 24000, 0, 1500, 0]
             glueNozzleService.sendCommand(data)
         elif event.key() == Qt.Key.Key_P:
             glueNozzleService = GlueNozzleService()
-            data = [0, 16, 4, 20, 50, 24000, 0, 3000, 0]
+            data = [0, 16, 4, 20, 80, 24000, 0, 1500, 0]
             glueNozzleService.sendCommand(data)
         elif event.key() == Qt.Key.Key_Escape:
             self.close()

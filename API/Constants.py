@@ -14,6 +14,7 @@ ACTION_GET_SETTINGS = "getSettings"
 ACTION_SET_SETTINGS = "setSettings"
 ACTION_CREATE_WORKPIECE = "createWorkpiece"
 ACTION_SAVE_WORKPIECE = "saveWorkpiece"
+ACTION_SAVE_WORKPIECE_DXF = "saveWorkpieceDXF"
 
 # CAMERA
 CAMERA_ACTION_GET_LATEST_FRAME = "getLatestFrame"
