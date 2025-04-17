@@ -11,6 +11,7 @@ from .ButtonConfig import ButtonConfig
 from .Header import Header
 from .Sidebar import Sidebar
 from pl_gui.GalleryContent import GalleryContent
+from drawing.ContourEditor import ContourEditor
 
 RESOURCE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources")
 DASHBOARD_BUTTON_ICON_PATH = os.path.join(RESOURCE_DIR, "pl_ui_icons", "DASHBOARD_BUTTON_SQUARE.png")
@@ -62,6 +63,8 @@ class MainWindow(QMainWindow):
         # Header Section
         self.header = Header(self.screen_width, self.screen_height, self.toggle_menu)
         self.galleryContent = GalleryContent()
+        # self.contourEditor = ContourEditor(None, None, None)
+
         # Sidebar Section
         dashboardButtonConfig = ButtonConfig(
             DASHBOARD_BUTTON_ICON_PATH,
@@ -111,6 +114,8 @@ class MainWindow(QMainWindow):
         self.stacked_widget.addWidget(self.main_content)
         self.stacked_widget.addWidget(self.settings_content)
         self.stacked_widget.addWidget(self.galleryContent)
+        self.stacked_widget.addWidget(self.contourEditor)
+
 
         # Add sidebar & stacked widget to content layout
         self.content_layout.addWidget(self.sidebar)
@@ -124,6 +129,9 @@ class MainWindow(QMainWindow):
         self.main_layout.addLayout(self.content_layout)
 
         print("MainWindow init finished")
+
+    def show_contour_editor(self):
+        self.stacked_widget.setCurrentWidget(self.contourEditor)
 
     def on_key_press(self, event):
         # temp code to test glue nozzle

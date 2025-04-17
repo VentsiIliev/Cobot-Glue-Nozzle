@@ -3,13 +3,51 @@ from PyQt6.QtCore import QPointF
 class BezierSegmentManager:
     def __init__(self):
         self.segments = [{'points': [], 'controls': []}]
+        self.active_segment_index = 0  # Default to the first segment being active
 
-    def add_point(self, pos):
-        current = self.segments[-1]
-        current['points'].append(pos)
-        if len(current['points']) >= 2:
-            mid = (current['points'][-2] + current['points'][-1]) / 2
-            current['controls'].append(mid)
+        # Method to set the active segment index
+
+    def set_active_segment(self, seg_index):
+        if 0 <= seg_index < len(self.segments):
+            print("Updating segment: ",seg_index)
+            self.active_segment_index = seg_index
+        else:
+            print(f"Invalid segment index: {seg_index}")
+
+
+    def start_new_segment(self):
+        # Initialize a new segment with placeholder data
+        new_segment = {'points': [QPointF(100, 100)], 'controls': [QPointF(150, 150), QPointF(200, 200)]}
+        print("Starting new segment:", new_segment)
+        self.segments.append(new_segment)
+        print("All segments after addition:", self.segments)
+
+    def add_point(self, pos: QPointF):
+        # If no segments exist, start a new segment
+        if not self.segments:
+            print("No segments exist, starting a new one.")
+            self.start_new_segment()
+
+        # If the last segment is hidden, start a new one
+        if not self.segments[-1].get('visible', True):
+            print("Last segment is hidden, starting a new one.")
+            self.start_new_segment()
+
+        # Get the most recent (active) segment
+        segment = self.segments[-1]
+
+        # Add the new point to the segment's points list
+        print(f"Adding point {pos} to segment.")
+        segment['points'].append(pos)
+
+        # Maintain consistent number of control points
+        if len(segment['points']) > 1:
+            # If there are multiple points, calculate the new control point
+            last = segment['points'][-2]  # Previous point
+            new = pos  # New point added
+            midpoint = (last + new) * 0.5  # Control point is the midpoint
+            print(f"Adding control point {midpoint} between points {last} and {new}.")
+            segment['controls'].append(midpoint)
 
     def remove_control_point_at(self, pos, threshold=10):
         for seg in self.segments:
@@ -157,6 +195,7 @@ class BezierSegmentManager:
             # Update the segment with the new control and points list
             segment['points'] = points
             segment['controls'] = controls
+            segment['visible'] = True
 
             print(f"Midpoint inserted at index {ctrl_index + 1}: {mid_point}")
 
@@ -166,3 +205,14 @@ class BezierSegmentManager:
     def evaluate_quadratic_bezier(self, p0, p1, p2, t):
         # Simple quadratic Bezier curve evaluation: (1 - t)^2 * p0 + 2(1 - t) * t * p1 + t^2 * p2
         return (1 - t) ** 2 * p0 + 2 * (1 - t) * t * p1 + t ** 2 * p2
+
+    def set_segment_visibility(self, seg_index, visible):
+        if 0 <= seg_index < len(self.segments):
+            self.segments[seg_index]['visible'] = visible
+        else:
+            raise IndexError("Segment index out of range")
+
+    def is_segment_visible(self, seg_index):
+        if 0 <= seg_index < len(self.segments):
+            return self.segments[seg_index].get('visible', True)
+        return False

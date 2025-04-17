@@ -82,6 +82,7 @@ class GlueSprayingApplication:
 
             matches, noMatches, _ = CompareContours.findMatchingWorkpieces(workpieces, newContours)
             print("Matches: ", matches)
+            print("Len Matches: ", len(matches))
 
             if noMatches is not None and len(noMatches) > 0:
                 message = "Unknown workpiece found!"
@@ -102,6 +103,8 @@ class GlueSprayingApplication:
             except:
                 traceback.print_exc()
 
+            self.robotService.dropOffGripper(self.robotService.currentGripper+10)
+
             self.robotService.moveToStartPosition()
 
             time.sleep(2)
@@ -114,9 +117,7 @@ class GlueSprayingApplication:
 
             if matches is None or len(matches) == 0:
                 message = f"No matching workpiece found!"
-                print("New contours2: ", len(newContours))
-                print("New contours2: ", newContours)
-                print(message)
+
                 return False, message
 
             finalData = []

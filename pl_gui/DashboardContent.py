@@ -109,6 +109,7 @@ class MainContent(QFrame):
             self.manualMoveContent = None
 
     def onCreateWorkpiece(self):
+        # self.parent.show_contour_editor()
         if self.createWorkpieceForm is None:
             if self.manualMoveContent:
                 self.manualMoveContent.close()
@@ -117,8 +118,10 @@ class MainContent(QFrame):
             result, data = self.controller.sendRequest("createworkpiece")
             if result:
                 frame = data['image']
+
                 self.cameraFeed.pause_feed(static_image=frame)
                 self.createWorkpieceForm = CreateWorkpieceForm(self.parent, self.onCreateWorkpieceSubmit)
+
                 self.createWorkpieceForm.setHeigh(data[WorkpieceField.HEIGHT.value])
                 self.content_layout.addWidget(self.createWorkpieceForm)
         else:

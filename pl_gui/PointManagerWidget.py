@@ -1,4 +1,6 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QListWidget, QPushButton, QMessageBox
+from PyQt6.QtWidgets import (
+    QWidget, QVBoxLayout, QPushButton, QMessageBox, QTreeWidget, QTreeWidgetItem
+)
 from PyQt6.QtCore import Qt
 
 
@@ -13,9 +15,11 @@ class PointManagerWidget(QWidget):
         if self.contour_editor:
             self.contour_editor.pointsUpdated.connect(self.refresh_points)
 
-        self.point_list = QListWidget()
-        self.point_list.currentItemChanged.connect(self.highlight_selected_point)
-        self.layout().addWidget(self.point_list)
+        self.tree = QTreeWidget()
+        self.tree.setHeaderLabels(["Point Type", "Coordinates", "Current"])
+        self.tree.itemClicked.connect(self.highlight_selected_point)
+        self.tree.itemChanged.connect(self.handle_segment_toggle)
+        self.layout().addWidget(self.tree)
 
         self.refresh_button = QPushButton("Refresh Points")
         self.refresh_button.clicked.connect(self.refresh_points)
@@ -25,8 +29,6 @@ class PointManagerWidget(QWidget):
         self.remove_button.clicked.connect(self.remove_selected_point)
         self.layout().addWidget(self.remove_button)
 
-
-        # Add the toggle pinch gesture button
         self.toggle_pinch_button = QPushButton("Enable Pinch Gesture")
         self.toggle_pinch_button.clicked.connect(self.toggle_pinch_gesture)
         self.layout().addWidget(self.toggle_pinch_button)
@@ -36,110 +38,123 @@ class PointManagerWidget(QWidget):
             QMessageBox.warning(self, "Error", "Contour editor is not set.")
             return
 
-        # Call the toggle_zooming method
         self.contour_editor.toggle_zooming()
-
-        # Update button text based on the new state
-        if self.contour_editor.is_zooming:
-            self.toggle_pinch_button.setText("Disable Zooming")
-        else:
-            self.toggle_pinch_button.setText("Enable Zooming")
-
-    def setContourEditor(self, editor):
-        self.contour_editor = editor
+        self.toggle_pinch_button.setText(
+            "Disable Zooming" if self.contour_editor.is_zooming else "Enable Zooming"
+        )
 
     def refresh_points(self):
-        self.point_list.clear()
+        self.tree.blockSignals(True)
+        self.tree.clear()
         if not self.contour_editor:
+            self.tree.blockSignals(False)
             return
+
         segments = self.contour_editor.manager.get_segments()
         for seg_index, segment in enumerate(segments):
-            for i, pt in enumerate(segment['points']):
-                self.point_list.addItem(f"SEG {seg_index} | P{i}: ({pt.x():.1f}, {pt.y():.1f})")
-            for i, ctrl in enumerate(segment['controls']):
-                self.point_list.addItem(f"SEG {seg_index} | C{i}: ({ctrl.x():.1f}, {ctrl.y():.1f})")
+            seg_item = QTreeWidgetItem([f"Segment {seg_index}", "", ""])
+            seg_item.setFlags(seg_item.flags() | Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEditable)
 
-    def highlight_selected_point(self):
-        item = self.point_list.currentItem()
+            # Visibility checkbox (column 0)
+            seg_item.setCheckState(0,
+                                   Qt.CheckState.Checked if segment.get('visible', True) else Qt.CheckState.Unchecked)
+
+            # Current/active segment checkbox (column 2)
+            is_active = self.contour_editor.manager.active_segment_index == seg_index
+            current_state = Qt.CheckState.Checked if is_active else Qt.CheckState.Unchecked
+            seg_item.setCheckState(2, current_state)
+
+            seg_item.setExpanded(False)
+
+            for i, pt in enumerate(segment['points']):
+                child = QTreeWidgetItem(["P" + str(i), f"({pt.x():.1f}, {pt.y():.1f})", ""])
+                seg_item.addChild(child)
+
+            for i, ctrl in enumerate(segment['controls']):
+                child = QTreeWidgetItem(["C" + str(i), f"({ctrl.x():.1f}, {ctrl.y():.1f})", ""])
+                seg_item.addChild(child)
+
+            self.tree.addTopLevelItem(seg_item)
+
+        self.tree.blockSignals(False)
+
+    def handle_segment_toggle(self, item, column):
+        if not self.contour_editor or item.parent() is not None:
+            return  # Only respond to top-level items
+
+        seg_text = item.text(0)
+        try:
+            seg_index = int(seg_text.split()[-1])
+
+            # Column 0: Visibility
+            if column == 0:
+                visible = item.checkState(0) == Qt.CheckState.Checked
+                self.contour_editor.manager.set_segment_visibility(seg_index, visible)
+                self.contour_editor.update()
+
+            # Column 2: Current segment toggle
+            elif column == 2:
+                # Only one segment can be active at a time, so deactivate others
+                if item.checkState(2) == Qt.CheckState.Checked:
+                    # Deactivate all other segments
+                    for i in range(self.tree.topLevelItemCount()):
+                        other_item = self.tree.topLevelItem(i)
+                        if other_item != item:
+                            other_item.setCheckState(2, Qt.CheckState.Unchecked)
+
+                    # Set the new active segment
+                    self.contour_editor.manager.set_active_segment(seg_index)
+
+                # Refresh to enforce only one active segment
+                self.refresh_points()
+
+        except Exception as e:
+            print(f"Segment toggle error: {e}")
+
+    def highlight_selected_point(self, item):
         if not item or not self.contour_editor:
             return
 
-        text = item.text()
+        parent = item.parent()
+        if parent is None:
+            return  # Skip segment headers (top-level items)
+
+        # Determine the segment index
+        seg_text = parent.text(0)
         try:
-            seg_index = int(text.split('|')[0].split()[1])
-            role_info = text.split('|')[1].strip()
-            if role_info.startswith('P'):
-                idx = int(role_info[1:].split(':')[0])
+            seg_index = int(seg_text.split()[-1])
+
+            # Handle point selection
+            label = item.text(0)
+            if label.startswith("P"):
+                idx = int(label[1:])
                 self.contour_editor.selected_point_info = ('anchor', seg_index, idx)
-            elif role_info.startswith('C'):
-                idx = int(role_info[1:].split(':')[0])
+            elif label.startswith("C"):
+                idx = int(label[1:])
                 self.contour_editor.selected_point_info = ('control', seg_index, idx)
+
             self.contour_editor.update()
         except Exception as e:
             print(f"Selection error: {e}")
 
     def remove_selected_point(self):
-        selected_item = self.point_list.currentItem()
-        if not selected_item or not self.contour_editor:
+        item = self.tree.currentItem()
+        if not item or not self.contour_editor or not item.parent():
             return
-        try:
-            text = selected_item.text()
-            seg_index = int(text.split('|')[0].split()[1])
-            role_info = text.split('|')[1].strip()
 
-            if role_info.startswith('P'):
-                idx = int(role_info[1:].split(':')[0])
+        seg_text = item.parent().text(0)
+        seg_index = int(seg_text.split()[-1])
+        label = item.text(0)
+
+        try:
+            if label.startswith("P"):
+                idx = int(label[1:])
                 self.contour_editor.manager.remove_point('anchor', seg_index, idx)
-            elif role_info.startswith('C'):
-                idx = int(role_info[1:].split(':')[0])
+            elif label.startswith("C"):
+                idx = int(label[1:])
                 self.contour_editor.manager.remove_point('control', seg_index, idx)
 
             self.refresh_points()
             self.contour_editor.update()
         except Exception as e:
             QMessageBox.critical(self, "Error", str(e))
-
-    def insert_midpoint(self):
-        if not self.contour_editor:
-            return
-
-        selected_item = self.point_list.currentItem()
-        if not selected_item:
-            QMessageBox.information(self, "Insert Point",
-                                    "Please select a segment control or anchor to insert midpoint.")
-            return
-
-        text = selected_item.text()
-        try:
-            seg_index = int(text.split('|')[0].split()[1])
-            role_info = text.split('|')[1].strip()
-
-            if role_info.startswith('P'):
-                idx = int(role_info[1:].split(':')[0])
-                points = self.contour_editor.manager.segments[seg_index]['points']
-                controls = self.contour_editor.manager.segments[seg_index]['controls']
-
-                if idx < len(points) - 1:
-                    p0 = points[idx]
-                    p1 = points[idx + 1]
-                    ctrl = controls[idx] if idx < len(controls) else (p0 + p1) / 2
-                    mid = self.contour_editor.manager.evaluate_quadratic_bezier(p0, ctrl, p1, 0.5)
-
-                    # Insert point
-                    new_ctrl1 = (p0 + mid) / 2
-                    new_ctrl2 = (mid + p1) / 2
-                    points.insert(idx + 1, mid)
-                    controls[idx] = new_ctrl1
-                    controls.insert(idx + 1, new_ctrl2)
-
-                    self.refresh_points()
-                    self.contour_editor.update()
-                    self.contour_editor.pointsUpdated.emit()
-                else:
-                    QMessageBox.warning(self, "Insert Point", "Cannot insert after the last anchor.")
-            else:
-                QMessageBox.warning(self, "Insert Point", "Please select an anchor (P) to insert after.")
-
-        except Exception as e:
-            QMessageBox.critical(self, "Error", str(e))
-

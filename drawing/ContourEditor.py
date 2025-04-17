@@ -1,17 +1,18 @@
+import numpy as np
 from PyQt6.QtCore import Qt, QPointF, pyqtSignal, QEvent, QTimer
 from PyQt6.QtGui import QPainter,QImage, QPen, QBrush, QPainterPath
 from PyQt6.QtWidgets import QFrame,QPinchGesture,QApplication
 import sys
-
 from matplotlib import pyplot as plt
 
+from contour_to_bezier import contour_to_bezier
 from BezierSegmentManager import BezierSegmentManager
 
 
 class ContourEditor(QFrame):
     pointsUpdated = pyqtSignal()
 
-    def __init__(self, visionSystem, image_path=None):
+    def __init__(self, visionSystem, image_path=None,contours=None):
         super().__init__()
         self.setWindowTitle("Editable Bezier Curves")
         self.setGeometry(100, 100, 1280, 720)
@@ -29,6 +30,18 @@ class ContourEditor(QFrame):
         self.translation = QPointF(0, 0)
         self.grabGesture(Qt.GestureType.PinchGesture)
         self.is_zooming = False
+
+        self.initContour(contours)
+
+    def initContour(self,contours):
+        if contours is not None:
+            self.contours = contours
+            for cnt in contours:
+
+                bezier_segments = contour_to_bezier(cnt)  # List of dicts: {'points': [...], 'controls': [...]}
+                for segment in bezier_segments:
+                    self.manager.segments.append(segment)
+                self.pointsUpdated.emit()
 
     def toggle_zooming(self):
         self.is_zooming = not self.is_zooming
@@ -115,6 +128,9 @@ class ContourEditor(QFrame):
             self.last_drag_pos = event.position()  # Store the position where drag started
             return
 
+        if not self.is_within_image(event.position()):
+            return  # Ignore clicks outside the image
+
         pos = self.map_to_image_space(event.position())
 
         if event.button() == Qt.MouseButton.RightButton:
@@ -154,6 +170,9 @@ class ContourEditor(QFrame):
             # Get current position in image space
             current_pos = self.map_to_image_space(event.position())
 
+            if not self.is_within_image(event.position()):
+                return
+
             # Calculate delta movement
             delta = current_pos - self.initial_drag_pos
 
@@ -178,6 +197,7 @@ class ContourEditor(QFrame):
         if key == Qt.Key.Key_N:
             print("New segment started.")
             self.manager.start_new_segment()
+            print("Current segments:", self.manager.get_segments())  # Debug print
             self.update()
             self.pointsUpdated.emit()
 
@@ -188,9 +208,15 @@ class ContourEditor(QFrame):
         elif key == Qt.Key.Key_Space:
             print("Capturing image from vision system...")
             image = self.visionSystem.captureImage()
+            contours = self.visionSystem.contours
+
             if image is None:
                 print("Image capture failed.")
                 return
+
+
+            self.initContour(contours)
+
             height, width, channels = image.shape
             bytes_per_line = channels * width
             fmt = QImage.Format.Format_RGB888 if channels == 3 else QImage.Format.Format_RGBA888
@@ -215,7 +241,9 @@ class ContourEditor(QFrame):
         painter.drawImage(0, 0, self.image)
 
         for segment in self.manager.get_segments():
-            self.draw_bezier_segment(painter, segment)
+            if segment.get("visible",True): # Default to True if missing
+                self.draw_bezier_segment(painter, segment)
+
         painter.end()
 
     def draw_bezier_segment(self, painter, segment):
@@ -287,13 +315,21 @@ class ContourEditor(QFrame):
         except Exception as e:
             print(f"Failed to plot path: {e}")
 
+    def is_within_image(self, pos: QPointF) -> bool:
+        image_width = self.image.width()
+        image_height = self.image.height()
+        img_pos = self.map_to_image_space(pos)
+        return 0 <= img_pos.x() < image_width and 0 <= img_pos.y() < image_height
+
 
 if __name__ == "__main__":
     from VisionSystem.VisionSystem import VisionSystem
+    from GlueDispensingApplication.vision.VisionService import VisionServiceSingleton
     import threading
     from PyQt6.QtWidgets import QWidget, QHBoxLayout
 
-    visionSystem = VisionSystem()
+    # visionSystem = VisionSystem()
+    visionSystem = VisionServiceSingleton.get_instance()
 
     def runCameraFeed():
         while True:
@@ -309,11 +345,12 @@ if __name__ == "__main__":
     main_layout.setContentsMargins(0, 0, 0, 0)
 
     # Bezier editor on the left
+    # contour = np.array([[[100, 100]], [[200, 100]], [[200, 200]], [[100, 200]]], dtype=np.int32)
+
     contourEditor = ContourEditor(visionSystem, image_path="imageDebug.png")
     main_layout.addWidget(contourEditor, stretch=4)
 
     # CreateWorkpieceForm on the right
-    from pl_gui.CreateWorkpieceForm import CreateWorkpieceForm  # Replace with your actual import
     from pl_gui.PointManagerWidget import PointManagerWidget  # Replace with your actual import
 
     pointManagerWidget = PointManagerWidget(contourEditor)

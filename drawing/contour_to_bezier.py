@@ -6,39 +6,32 @@ import cv2
 
 def contour_to_bezier(contour, control_point_ratio=0.5):
     """
-    Converts an OpenCV contour into a list of Bezier segments.
+    Converts an OpenCV contour into a list of quadratic Bezier segments.
 
     Args:
-        contour (list of tuple or numpy array): A list of points representing the contour.
-        control_point_ratio (float): Controls how far along the segment the control points will be.
-                                      Higher values make the control points closer to the segment.
+        contour (list or numpy array): OpenCV-style contour where each point is [[x, y]].
+        control_point_ratio (float): Position along the line between start and end for control point.
 
     Returns:
-        List of Bezier segments represented by start points, control points, and end points.
+        List of dicts with keys: 'points' (2 anchor points) and 'controls' (1 control point).
     """
     bezier_segments = []
 
-    # Loop through the contour and create Bezier segments
     for i in range(len(contour)):
-        # Unpack the points correctly
-        start_point = contour[i][0]  # Each point is in a shape of (x, y)
-        end_point = contour[(i + 1) % len(contour)][0]  # Wrap around to form a closed loop
+        start = contour[i][0]
+        end = contour[(i + 1) % len(contour)][0]  # Wrap around
 
-        # Calculate control points (midpoints for simplicity, this can be refined)
-        control_point_1 = QPointF(
-            (start_point[0] + end_point[0]) * control_point_ratio,
-            (start_point[1] + end_point[1]) * control_point_ratio
-        )
+        start_pt = QPointF(start[0], start[1])
+        end_pt = QPointF(end[0], end[1])
 
-        control_point_2 = QPointF(
-            (start_point[0] + end_point[0]) * (1 - control_point_ratio),
-            (start_point[1] + end_point[1]) * (1 - control_point_ratio)
-        )
+        # Midpoint (you can tweak this for smoothing/shaping)
+        control_x = (1 - control_point_ratio) * start[0] + control_point_ratio * end[0]
+        control_y = (1 - control_point_ratio) * start[1] + control_point_ratio * end[1]
+        control_pt = QPointF(control_x, control_y)
 
-        # Store the segment (points and controls)
         bezier_segments.append({
-            'points': [QPointF(start_point[0], start_point[1]), QPointF(end_point[0], end_point[1])],
-            'controls': [control_point_1, control_point_2]
+            'points': [start_pt, end_pt],
+            'controls': [control_pt]
         })
 
     return bezier_segments
@@ -77,12 +70,12 @@ def plot_contour_and_bezier(contour, bezier_segments):
     plt.show()
 
 
-# Example usage:
-# OpenCV contour obtained from cv2.findContours() (as a numpy array of points)
-contour = np.array([[[100, 100]], [[200, 100]], [[200, 200]], [[100, 200]]], dtype=np.int32)
-
-# Convert contour to Bezier
-bezier_segments = contour_to_bezier(contour)
-
-# Plot the contour and Bezier curves
-plot_contour_and_bezier(contour, bezier_segments)
+# # Example usage:
+# # OpenCV contour obtained from cv2.findContours() (as a numpy array of points)
+# contour = np.array([[[100, 100]], [[200, 100]], [[200, 200]], [[100, 200]]], dtype=np.int32)
+#
+# # Convert contour to Bezier
+# bezier_segments = contour_to_bezier(contour)
+#
+# # Plot the contour and Bezier curves
+# plot_contour_and_bezier(contour, bezier_segments)

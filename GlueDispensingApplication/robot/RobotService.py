@@ -77,7 +77,7 @@ class RobotService:
         print(" Tracing contours")
         requiredSprayingHeight, toolTip = self.__getTool(toolID)
         threshold = 1
-        height = self.pump.zOffset + height + 7
+        height = self.pump.zOffset + height + 15
         try:
             if not self.robot:
                 messagebox.showwarning("        Warning", "Robot not connected.")
@@ -264,7 +264,11 @@ class RobotService:
 
     def __executeNestingTrajectory(self,grippers,paths):
         velocity, tool, workpiece, acceleration, blendR = self.getMotionParams()
+        count = 0
         for gripperId, path in zip(grippers, paths):
+            print("PathCount: ", count)
+
+            print("len paths: ", len(paths))
             """CHECK IF GRIPPER CHANGE IS NECESSARY"""
             print("Path: ", path)
             print("Gripper: ", gripperId)
@@ -272,7 +276,7 @@ class RobotService:
             print(f"Type of gripperId: {type(gripperId)}, Type of self.currentGripper: {type(self.currentGripper)}")
 
             if self.currentGripper != gripperId:
-                if self.currentGripper != None:
+                if self.currentGripper is not None:
                     result, message = self.dropOffGripper(self.currentGripper)
                     if not result:
                         return False, message
@@ -286,6 +290,7 @@ class RobotService:
             for point in path:
                 self.robot.moveCart(point, tool, workpiece, vel=velocity, acc=40)
             self.pump.turnOff(self.robot)
+        return True,None
 
     def nestingNew(self, workpieces,callback=None):
         if callback is not None:

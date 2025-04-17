@@ -131,8 +131,8 @@ class _VisionService(VisionSystem):
         print("Capturing image")
         image = super().captureImage()
         #print image type
-        print("Image type in VisionService: ", type(image))
-        print("Corrected image shape: ", image.shape)
+        # print("Image type in VisionService: ", type(image))
+        # print("Corrected image shape: ", image.shape)
 
         return image
 
