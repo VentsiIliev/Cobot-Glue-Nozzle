@@ -88,3 +88,4 @@ class Sidebar(QFrame):
         """Uncheck all buttons in the sidebar."""
         for button in self.buttons:
             button.setChecked(False)
+

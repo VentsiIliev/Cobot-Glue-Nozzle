@@ -92,13 +92,15 @@ class GlueSprayingApplication:
                 print(message)
                 return False, message
 
-            # try:
-            #     result, message = self.robotService.nestingNew(matches, self.updateToolChangerStation)
-            #     if not result:
-            #         self.robotService.moveToStartPosition()
-            #         return result, message
-            # except:
-            #     traceback.print_exc()
+            self.robotService.cleanNozzle()
+
+            try:
+                result, message = self.robotService.nestingNew(matches, self.updateToolChangerStation)
+                if not result:
+                    self.robotService.moveToStartPosition()
+                    return result, message
+            except:
+                traceback.print_exc()
 
             self.robotService.moveToStartPosition()
 
@@ -130,8 +132,21 @@ class GlueSprayingApplication:
                     contour.append(contour[0])
                     print("Contour: ",contour)
                 else:
-                    contour = match.sprayPattern
-                    print("SprayPattern = ",contour)
+                    finalContourList = []
+
+                    contourList = match.sprayPattern.get("Contour")
+                    if len(contourList) > 0:
+                        finalContourList = contourList
+
+                    filList = match.sprayPattern.get("Fill")
+                    if len(filList) > 0:
+                        for fill in filList:
+                            cnt = self.robotService.zigZag(fill,1,"horizontal")
+                            finalContourList.append(fill)
+
+
+
+                    # print("SprayPattern = ",contour)
                     # transformed = utils.applyTransformation(self.visionService.cameraToRobotMatrix,
                     #                                     [contour])
 
@@ -143,12 +158,13 @@ class GlueSprayingApplication:
                     data = [contour], match.height, match.toolID
                     finalData.append(data)
                 elif program == Program.TRACE:
-                    data = [contour], match.height, match.toolID
+                    data = contourList, match.height, match.toolID
                     finalData.append(data)
                     # self.robotService.traceContours([contour], match.height,match.toolID)
                 else:
                     raise ValueError(f"Unknown program: {program}")
 
+            # self.robotService.cleanNozzle()
             for d in finalData:
                 self.robotService.traceContours(d[0], d[1], d[2])
 

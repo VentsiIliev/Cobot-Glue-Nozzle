@@ -1,40 +1,45 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Points data
-points = [
-    [
-        [117.0, 138.5]
-    ],
-    [
-        [247.0, 138.5]
-    ],
-    [
-        [247.0, 203.5]
-    ],
-    [
-        [117.0, 203.5]
-    ]
-]
+# Contour data
+contour1 = np.array([[[[0.0, 0.0]], [[134.0, 0.0]]],
+                     [[[134.0, 0.0]], [[134.0, 58.5]]],
+                     [[[134.0, 58.5]], [[0.0, 58.5]]],
+                     [[[0.0, 58.5]], [[0.0, 0.0]]]])
 
-# Convert to NumPy array for easier manipulation
-points = np.array(points).reshape(-1, 2)
+contour2 = np.array([[[-59.730717, 590.1483]],
+                     [[-72.00659, 541.79987]],
+                     [[51.56464, 510.34686]],
+                     [[63.199547, 560.048]],
+                     [[-56.837833, 590.9858]],
+                     [[-59.730717, 590.1483]]])
 
-# Extract x and y coordinates
-x = points[:, 0]
-y = points[:, 1]
+# Extract points for Contour1
+contour1_points = []
+for segment in contour1:
+    for point in segment:
+        contour1_points.append(point[0])
+contour1_points = np.array(contour1_points)
 
-# Plot the points
+# Extract points for Contour2
+contour2_points = contour2[:, 0, :]
+
+# Plotting
 plt.figure(figsize=(8, 6))
-plt.plot(x, y, marker='o', color='blue', label="Points")
-plt.fill(x, y, color='lightblue', alpha=0.3)  # Optional: Fill the shape
 
-# Add labels, legend, and grid
-plt.title("Points Plot")
+# Plot Contour1
+plt.plot(contour1_points[:, 0], contour1_points[:, 1], label="Contour1", color="blue", marker="o")
+
+# Plot Contour2
+plt.plot(contour2_points[:, 0], contour2_points[:, 1], label="Contour2", color="red", marker="o")
+
+# Formatting
+plt.title("Contours Plot")
 plt.xlabel("X")
 plt.ylabel("Y")
 plt.legend()
 plt.grid(True)
+plt.axis("equal")
 
-# Show the plot
+# Show plot
 plt.show()

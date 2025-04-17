@@ -68,25 +68,37 @@ class Contour:
 
         # Ensure contour_points is a NumPy array with correct shape
         contour = np.array(self.contour_points, dtype=np.int32)
-        if contour.ndim != 3 or contour.shape[1] != 1 or contour.shape[2] != 2:
-            contour = contour.reshape(-1, 1, 2)
 
-        if len(contour) < 3:  # Convexity defects require at least 3 points
+        # Remove duplicate points to prevent self-intersections
+        contour = np.unique(contour.reshape(-1, 2), axis=0)
+
+        if len(contour) < 3:
             return False, None
 
-            # Compute convex hull (returning indices, not points)
-        hull = cv2.convexHull(contour, returnPoints=False)
+        # Reshape to (N, 1, 2) for OpenCV
+        contour = contour.reshape(-1, 1, 2)
 
-        if hull is None or len(hull) < 3:  # Check if hull is valid
+        # Compute convex hull indices (not points)
+        try:
+            hull = cv2.convexHull(contour, returnPoints=False)
+
+            if hull is None or len(hull) < 3:
+                return False, None
+
+            # Sort hull indices to enforce monotonicity
+            hull = np.sort(hull.flatten())[:, np.newaxis]
+
+            # Compute convexity defects
+            defects = cv2.convexityDefects(contour, hull)
+
+            if defects is None:
+                return False, None
+
+            return True, defects
+
+        except cv2.error as e:
+            print(f"[ConvexityDefects Error] {e}")
             return False, None
-
-        # Compute convexity defects
-        defects = cv2.convexityDefects(contour, hull)
-
-        if defects is None:  # No defects found
-            return False, None
-
-        return True, defects
 
     def simplify(self, epsilon_factor=0.01):
         """SIMPLIFY THE CONTOUR USING APPROX POLY DP"""
@@ -140,6 +152,7 @@ class Contour:
 
     def __rotateContour(self, contour, angle, pivot):
         """Rotates an entire contour efficiently."""
+
         angle_rad = np.radians(angle)  # Convert once, avoid redundant conversions
         return np.array([[self.__rotatePoint(point[0], angle_rad, pivot)] for point in contour], dtype=np.float32)
 

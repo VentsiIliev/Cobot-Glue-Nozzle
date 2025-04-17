@@ -42,8 +42,9 @@ class Workpiece(BaseWorkpiece, JsonSerializable):
                 f"   Offset: {self.offset}\n"
                 f"   Height: {self.height}\n"
                 f"   Nozzles: {self.nozzles}\n"
-                f"   Area: {self.contourArea}\n"
-                f"   Spray Pattern: {self.sprayPattern}\n")
+                f"   Area: {self.contourArea}\n")
+                # f"   Spray Pattern: {{ Contour: {len(self.sprayPattern.get('Contour', []))}, Fill: {len(self.sprayPattern.get('Fill', []))} }}\n")
+
 
     def getFormattedDetails(self):
         return [
@@ -87,15 +88,24 @@ class Workpiece(BaseWorkpiece, JsonSerializable):
         # Debugging: Print the types of contour and sprayPattern
         print("Type of workpiece.contour:", type(workpiece.contour))
         print("Type of workpiece.sprayPattern:", type(workpiece.sprayPattern))
-
+        print("Contour before serialization: ",workpiece.contour)
         contour_list = convert_ndarray_to_list(workpiece.contour)
-        if isinstance(workpiece.sprayPattern, np.ndarray):
-            spray_pattern_list = workpiece.sprayPattern.tolist()
+        # if isinstance(workpiece.sprayPattern, np.ndarray):
+        #     spray_pattern_list = workpiece.sprayPattern.tolist()
+        # else:
+        #     spray_pattern_list = flatten_points(workpiece.sprayPattern)
+        if isinstance(workpiece.sprayPattern, dict):
+            spray_pattern_dict = {
+                key: convert_ndarray_to_list(val) for key, val in workpiece.sprayPattern.items()
+            }
         else:
-            spray_pattern_list = flatten_points(workpiece.sprayPattern)
+            spray_pattern_dict = flatten_points(workpiece.sprayPattern)
+
+        workpiece.sprayPattern = spray_pattern_dict
+
         print("Serialized cnt and spray")
         workpiece.contour = contour_list
-        workpiece.sprayPattern = spray_pattern_list
+        # workpiece.sprayPattern = spray_pattern_list
 
         # Debugging: Print the types of contour and sprayPattern
         print("Type of workpiece.contour after serialization:", type(workpiece.contour))
@@ -103,7 +113,6 @@ class Workpiece(BaseWorkpiece, JsonSerializable):
 
         return workpiece.toDict()
 
-    @staticmethod
     def deserialize(data):
         """
         Deserialize a dictionary back into a Workpiece object.
@@ -120,7 +129,16 @@ class Workpiece(BaseWorkpiece, JsonSerializable):
 
         # Deserialize fields
         contour = convert_list_to_ndarray(data[WorkpieceField.CONTOUR.value])
-        spray_pattern = Workpiece.reshape_spray_pattern(data[WorkpieceField.SPRAY_PATTERN.value])  # Corrected
+        print("Contour after deserialization:", contour)
+
+        # Spray pattern logic stays the same
+        raw_spray_pattern = data.get(WorkpieceField.SPRAY_PATTERN.value, {})
+        spray_pattern = {}
+        if isinstance(raw_spray_pattern, dict):
+            for key, pattern in raw_spray_pattern.items():
+                spray_pattern[key] = Workpiece.reshape_spray_pattern(pattern)
+        else:
+            spray_pattern = raw_spray_pattern  # fallback
 
         workpiece = Workpiece.fromDict(data)
         workpiece.contour = contour
@@ -149,23 +167,47 @@ class Workpiece(BaseWorkpiece, JsonSerializable):
 
     @staticmethod
     def flatten_spray_pattern(obj):
-        """Flatten nested spray pattern to a consistent format (N, 1, 2)."""
         if isinstance(obj, list):
             flat_obj = []
             for item in obj:
                 if isinstance(item, list):
-                    # Flatten if the item itself is a list, remove nested lists
-                    flat_obj.extend(Workpiece.flatten_spray_pattern(item))  # Corrected
+                    flat_obj.extend(Workpiece.flatten_spray_pattern(item))
                 else:
                     flat_obj.append(item)
             return flat_obj
-        return [obj]  # Return a list if the item is not a list
+        return [obj]
 
     @staticmethod
     def reshape_spray_pattern(obj):
-        """Ensure spray pattern has the correct shape (N, 1, 2)."""
-        flat_spray_pattern = Workpiece.flatten_spray_pattern(obj)  # Corrected line
-        return np.array(flat_spray_pattern, dtype=np.float32).reshape(-1, 1, 2)
+        """
+        Reshape spray pattern list into list of (N, 1, 2) numpy arrays.
+        Handles multiple contours (lists of point lists).
+        """
+        if not obj:
+            return []
+
+        # If it's a single contour, flatten and reshape it
+        if all(isinstance(pt, (list, np.ndarray)) and len(pt) == 2 for pt in obj):
+            grouped = np.array(obj, dtype=np.float32).reshape(-1, 1, 2)
+            return [grouped]
+
+        # If it's a list of contours
+        if isinstance(obj, list) and all(isinstance(c, list) for c in obj):
+            result = []
+            for contour in obj:
+                if not contour:
+                    continue
+                flat = Workpiece.flatten_spray_pattern(contour)
+                if all(isinstance(x, (int, float)) for x in flat):
+                    grouped = [[flat[i], flat[i + 1]] for i in range(0, len(flat), 2)]
+                elif all(isinstance(x, list) and len(x) == 2 for x in flat):
+                    grouped = flat
+                else:
+                    raise ValueError(f"Invalid spray pattern shape: {flat}")
+                result.append(np.array(grouped, dtype=np.float32).reshape(-1, 1, 2))
+            return result
+
+        raise ValueError(f"Unknown spray pattern format: {obj}")
 
     @staticmethod
     def fromDict(dict):

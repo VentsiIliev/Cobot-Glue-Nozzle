@@ -1,6 +1,6 @@
 import os
 from PyQt6.QtCore import QSize, Qt
-from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QStackedWidget, QApplication, QFrame, QSizePolicy
+from PyQt6.QtWidgets import QWidget, QHBoxLayout, QStackedWidget, QApplication, QFrame, QSizePolicy
 from .ButtonConfig import ButtonConfig
 from .CameraFeed import CameraFeed
 from .Sidebar import Sidebar
@@ -150,14 +150,18 @@ class MainContent(QFrame):
 
         if file_name:
             print(f"Selected DXF file: {file_name}")
-            from drawing.DxfParser import DXFPathExtractor
+            from drawing.dxf.DxfParser import DXFPathExtractor
             extractor = DXFPathExtractor(file_name)
-            wp, spray = extractor.get_opencv_contours()
+            wp, spray,fill = extractor.get_opencv_contours()
             print("✅ Workpiece Points:", wp)
             print("✅ Spray Pattern Points:", spray)
+            print("✅ Fill Pattern Points:", fill)
 
-            # extractor.plot()
-            extractor.save_dxf("plate_with_border.dxf")
+            sprayPatternsDict ={
+                "Contour":spray,
+                "Fill": fill
+            }
+
 
             from API.shared.workpiece.Workpiece import WorkpieceField
             data = {
@@ -171,7 +175,7 @@ class MainContent(QFrame):
                 WorkpieceField.MATERIAL.value: "N/A",
                 WorkpieceField.OFFSET.value: 0,
                 WorkpieceField.HEIGHT.value: 4,
-                WorkpieceField.SPRAY_PATTERN.value: spray,
+                WorkpieceField.SPRAY_PATTERN.value: sprayPatternsDict,
                 WorkpieceField.CONTOUR.value: wp,
                 WorkpieceField.CONTOUR_AREA.value : 0
             }

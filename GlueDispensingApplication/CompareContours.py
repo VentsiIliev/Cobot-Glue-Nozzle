@@ -10,9 +10,13 @@ SIMILARITY_THRESHOLD = 70
 DEFECT_THRESHOLD = 5
 
 
-def _isValid(contour):
+# def _isValid(contour):
+#     """Check if the contour is valid."""
+#     return contour is not None and len(contour) > 0
+
+def _isValid(sprayPatternList):
     """Check if the contour is valid."""
-    return contour is not None and len(contour) > 0
+    return sprayPatternList is not None and len(sprayPatternList) > 0
 
 
 def findMatchingWorkpieces(workpieces, newContours):
@@ -94,59 +98,61 @@ def _findMatches(newContours, workpieces):
 
 
 def _alignContours(matched, defectsThresh=5):
-    print(f"Aligning contours")
+    print("Aligning contours")
     transformedMatches = []
-    for i in range(len(matched)):
-        print(F"ITERATION {i}")
-        workpiece = matched[i]["workpiece"]
-        newContour = matched[i]["newContour"]
-        rotationDiffList = matched[i]["rotationDiff"]
-        centroidDiffList = matched[i]["centroidDiff"]
 
-        workpiece_copy = copy.deepcopy(workpiece)  # copy the matched workpiece to avoid modifying the original
+    for i, match in enumerate(matched):
+        print(f"ITERATION {i}")
+        workpiece = copy.deepcopy(match["workpiece"])
+        newContour = match["newContour"]
+        rotationDiff = match["rotationDiff"]
+        centroidDiff = match["centroidDiff"]
 
-        if not _isValid(workpiece_copy.contour):
+        if not _isValid(workpiece.contour):
             continue
 
-        sprayPattern = workpiece_copy.sprayPattern
-        workpieceCopyContourObject = Contour(workpiece_copy.contour)
+        # Prepare contour objects
+        contourObj = Contour(workpiece.contour)
+        sprayContours = workpiece.sprayPattern.get("Contour", [])
+        sprayFills = workpiece.sprayPattern.get("Fill", [])
 
-        """ROTATION"""
-        print(f"    Rotating")
-        centroid = workpieceCopyContourObject.getCentroid()
-        print("     rotationDiffList", rotationDiffList)
-        workpieceCopyContourObject.rotate(rotationDiffList, centroid)
-        if _isValid(sprayPattern):
-            try:
-                print("     rotating spray pattern")
-                sprayPatternCopyObject = Contour(sprayPattern)
-                sprayPatternCopyObject.rotate(rotationDiffList, centroid)
-            except:
-                print("     Error rotating spray pattern")
-                traceback.print_exc()
+        sprayContourObjs = [Contour(cnt) for cnt in sprayContours if _isValid(cnt)]
+        sprayFillObjs = [Contour(cnt) for cnt in sprayFills if _isValid(cnt)]
 
-        """TRANSLATION"""
-        print(f"    Translating")
-        workpieceCopyContourObject.translate(centroidDiffList[0], centroidDiffList[1])
-        if _isValid(sprayPattern):
-            sprayPatternCopyObject.translate(centroidDiffList[0], centroidDiffList[1])
+        # Rotation
+        print("    Rotating")
+        centroid = contourObj.getCentroid()
+        contourObj.rotate(rotationDiff, centroid)
 
-        # update the workpieceCopy contour
-        print(f"        Updating workpiece copy before comparing hulls and defects")
-        workpiece_copy.contour = workpieceCopyContourObject.get_contour_points()
-        if _isValid(sprayPattern):
-            workpiece_copy.sprayPattern = sprayPatternCopyObject.get_contour_points()
+        for obj in sprayContourObjs:
+            obj.rotate(rotationDiff, centroid)
+        for obj in sprayFillObjs:
+            obj.rotate(rotationDiff, centroid)
 
-        _compareContoursHullAndDefects(defectsThresh, newContour, workpiece_copy)
+        # Translation
+        print("    Translating")
+        contourObj.translate(*centroidDiff)
+        for obj in sprayContourObjs:
+            obj.translate(*centroidDiff)
+        for obj in sprayFillObjs:
+            obj.translate(*centroidDiff)
 
-        """UPDATE AND APPEND TRANSFORMED WORKPIECE"""
-        print(f"        Updating and appending transformed workpiece")
-        workpiece_copy.contour = workpieceCopyContourObject.get_contour_points()
-        transformedMatches.append(workpiece_copy)
-        if _isValid(sprayPattern):
-            workpiece_copy.sprayPattern = sprayPatternCopyObject.get_contour_points()
+        # Update the workpiece
+        print("    Updating transformed contours")
+        workpiece.contour = contourObj.get_contour_points()
+        if sprayContourObjs:
+            workpiece.sprayPattern["Contour"] = [obj.get_contour_points() for obj in sprayContourObjs]
+        if sprayFillObjs:
+            workpiece.sprayPattern["Fill"] = [obj.get_contour_points() for obj in sprayFillObjs]
+
+        # Compare contours
+        _compareContoursHullAndDefects(defectsThresh, newContour, workpiece)
+
+        # Add to result
+        transformedMatches.append(workpiece)
 
     return transformedMatches
+
 
 
 def _compareContoursHullAndDefects(defectsThresh, newContours, workpieceCopy):

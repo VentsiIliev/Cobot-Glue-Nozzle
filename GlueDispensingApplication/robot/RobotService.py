@@ -73,10 +73,10 @@ class RobotService:
             messagebox.showerror("Error", f"Error moving to start position: {e}")
 
     def traceContours(self, contours, height, toolID=None):
-        self.cleanNozzle()
+        # self.cleanNozzle()
         print(" Tracing contours")
         requiredSprayingHeight, toolTip = self.__getTool(toolID)
-        threshold = 5
+        threshold = 1
         height = self.pump.zOffset + height + 7
         try:
             if not self.robot:
@@ -136,7 +136,7 @@ class RobotService:
 
                 endPoint = path[-1]
                 print("     End point: ", endPoint)
-                self._waitForRobotToReachPosition(endPoint, threshold=5,
+                self._waitForRobotToReachPosition(endPoint, threshold=threshold,
                                                   delay=0.5)  # TODO comment out when using test robot
 
                 if isinstance(toolTip, Tool1):
