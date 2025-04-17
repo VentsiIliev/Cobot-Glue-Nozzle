@@ -32,8 +32,12 @@ class ContourEditor(QFrame):
 
     def toggle_zooming(self):
         self.is_zooming = not self.is_zooming
-        print(f"Zooming is now {'enabled' if self.is_zooming else 'disabled'}.")
-
+        if self.is_zooming:
+            self.grabGesture(Qt.GestureType.PinchGesture)
+            print("Zooming and pinch gesture enabled.")
+        else:
+            self.ungrabGesture(Qt.GestureType.PinchGesture)
+            print("Zooming and pinch gesture disabled.")
     def reset_zoom_flag(self):
         self.is_zooming = False
 
